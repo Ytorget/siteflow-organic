@@ -336,5 +336,68 @@
     "startDialog": "Starta dialogen",
     "email": "hello@siteflow.se",
     "note": "Inga säljare. Du pratar direkt med en arkitekt."
+  },
+  "process": {
+    "badge": "Metodik",
+    "title": "Från stillastående till strömmande",
+    "description": "En process designad för att ta bort friktion.",
+    "steps": {
+      "analysis": {
+        "title": "Analys & Diagnos",
+        "description": "Vi börjar inte med att koda. Vi börjar med att förstå flödet. Var läcker resurserna?"
+      },
+      "architecture": {
+        "title": "Flytande Arkitektur",
+        "description": "Vi designar systemet som ett ekosystem. Vi ritar upp hur data ska flöda för att minimera friktion."
+      },
+      "construction": {
+        "title": "Konstruktion",
+        "description": "Vi bygger med Elixir/OTP. System som kan krascha tusentals gånger utan att användaren märker det."
+      },
+      "scaling": {
+        "title": "Levande Skalning",
+        "description": "Systemet sjösätts. Designat för att svälla vid hög trafik och dra ihop sig vid låg."
+      }
+    }
+  },
+  "philosophySection": {
+    "badge": "Vår Filosofi",
+    "title": "Flöde framför kraft",
+    "description": "Vi tvingar inte system att fungera. Vi bygger dem så att de följer naturliga mönster. Som vatten som hittar sin väg, skalar våra system utan friktion.",
+    "readManifesto": "Läs hela manifestet",
+    "features": {
+      "scalability": {
+        "title": "Hantera enorma flöden",
+        "description": "Miljontals användare samtidigt? Inga problem. Vi använder Actor-modellen (samma som WhatsApp) där varje användare är en isolerad process. Systemet blir snabbare ju mer det används, inte långsammare."
+      },
+      "selfHealing": {
+        "title": "Självläkande",
+        "description": "\"Let it crash\". Om en del av systemet får problem, startar vi om just den delen på mikrosekunder. Resten av systemet påverkas aldrig.",
+        "errorDetected": "Error detected. Restarting process...",
+        "systemHealthy": "System healthy."
+      },
+      "cost": {
+        "title": "Kostnadseffektivt",
+        "description": "Upp till 80% lägre infrastrukturkostnader. Vi gör mer med mindre hårdvara."
+      },
+      "ai": {
+        "title": "Redo för AI",
+        "description": "Byggt för agenter och parallella processer från dag ett. Inte efterkonstruerat."
+      },
+      "concurrency": {
+        "title": "Massiv Concurrency",
+        "description": "Medan andra servrar svettas vid 1000 anslutningar, gäspar våra vid 100 000."
+      }
+    }
+  },
+  "imageGrid": {
+    "badge": "Insidan",
+    "title": "Bakom kulisserna",
+    "description": "Inga generiska stock-foton. Så här ser det ut när vi designar flöden och löser problem.",
+    "labels": {
+      "liveArchitecture": "Live Arkitektur",
+      "flowDesign": "Flödesdesign",
+      "inHouse": "In-House"
+    }
   }
 }

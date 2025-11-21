@@ -336,5 +336,68 @@
     "startDialog": "Start the dialog",
     "email": "hello@siteflow.se",
     "note": "No salespeople. You talk directly to an architect."
+  },
+  "process": {
+    "badge": "Methodology",
+    "title": "From stagnant to streaming",
+    "description": "A process designed to remove friction.",
+    "steps": {
+      "analysis": {
+        "title": "Analysis & Diagnosis",
+        "description": "We don't start by coding. We start by understanding the flow. Where are resources leaking?"
+      },
+      "architecture": {
+        "title": "Flowing Architecture",
+        "description": "We design the system as an ecosystem. We map out how data should flow to minimize friction."
+      },
+      "construction": {
+        "title": "Construction",
+        "description": "We build with Elixir/OTP. Systems that can crash thousands of times without the user noticing."
+      },
+      "scaling": {
+        "title": "Living Scaling",
+        "description": "The system launches. Designed to expand under high traffic and contract under low."
+      }
+    }
+  },
+  "philosophySection": {
+    "badge": "Our Philosophy",
+    "title": "Flow over force",
+    "description": "We don't force systems to work. We build them to follow natural patterns. Like water finding its way, our systems scale without friction.",
+    "readManifesto": "Read the full manifesto",
+    "features": {
+      "scalability": {
+        "title": "Handle massive flows",
+        "description": "Millions of concurrent users? No problem. We use the Actor model (same as WhatsApp) where each user is an isolated process. The system gets faster the more it's used, not slower."
+      },
+      "selfHealing": {
+        "title": "Self-healing",
+        "description": "\"Let it crash\". If a part of the system has problems, we restart just that part in microseconds. The rest of the system is never affected.",
+        "errorDetected": "Error detected. Restarting process...",
+        "systemHealthy": "System healthy."
+      },
+      "cost": {
+        "title": "Cost-effective",
+        "description": "Up to 80% lower infrastructure costs. We do more with less hardware."
+      },
+      "ai": {
+        "title": "AI Ready",
+        "description": "Built for agents and parallel processes from day one. Not retrofitted."
+      },
+      "concurrency": {
+        "title": "Massive Concurrency",
+        "description": "While other servers sweat at 1000 connections, ours yawn at 100,000."
+      }
+    }
+  },
+  "imageGrid": {
+    "badge": "Inside",
+    "title": "Behind the scenes",
+    "description": "No generic stock photos. This is what it looks like when we design flows and solve problems.",
+    "labels": {
+      "liveArchitecture": "Live Architecture",
+      "flowDesign": "Flow Design",
+      "inHouse": "In-House"
+    }
   }
 }

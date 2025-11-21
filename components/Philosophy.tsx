@@ -1,5 +1,6 @@
 import React from 'react';
 import { Waves, ShieldCheck, Zap, BrainCircuit, ServerCrash, Network } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Page } from '../types';
 
 interface PhilosophyProps {
@@ -7,27 +8,27 @@ interface PhilosophyProps {
 }
 
 const Philosophy: React.FC<PhilosophyProps> = ({ onNavigate }) => {
+  const { t } = useTranslation();
   return (
     <section id="philosophy" className="py-24 bg-slate-50 relative overflow-hidden">
       <div className="container mx-auto px-6">
         
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
             <div className="max-w-2xl">
-                <span className="text-blue-600 font-bold tracking-wider text-sm uppercase mb-3 block">Vår Filosofi</span>
+                <span className="text-blue-600 font-bold tracking-wider text-sm uppercase mb-3 block">{t('philosophySection.badge')}</span>
                 <h2 className="text-4xl md:text-5xl font-serif text-slate-900 leading-tight">
-                    Flöde framför kraft
+                    {t('philosophySection.title')}
                 </h2>
                 <p className="text-lg md:text-xl text-slate-600 mt-4 leading-relaxed">
-                    Vi tvingar inte system att fungera. Vi bygger dem så att de följer naturliga mönster. 
-                    Som vatten som hittar sin väg, skalar våra system utan friktion.
+                    {t('philosophySection.description')}
                 </p>
             </div>
             <div className="hidden md:block">
-                 <button 
-                   onClick={() => onNavigate('philosophy')} 
+                 <button
+                   onClick={() => onNavigate('philosophy')}
                    className="text-slate-900 font-medium border-b-2 border-slate-900 pb-1 hover:text-blue-600 hover:border-blue-600 transition-colors"
                  >
-                   Läs hela manifestet
+                   {t('philosophySection.readManifesto')}
                  </button>
             </div>
         </div>
@@ -42,9 +43,9 @@ const Philosophy: React.FC<PhilosophyProps> = ({ onNavigate }) => {
                 <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6">
                     <Waves className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-serif text-slate-900 mb-3">Hantera enorma flöden</h3>
+                <h3 className="text-2xl font-serif text-slate-900 mb-3">{t('philosophySection.features.scalability.title')}</h3>
                 <p className="text-slate-600 max-w-md leading-relaxed">
-                    Miljontals användare samtidigt? Inga problem. Vi använder Actor-modellen (samma som WhatsApp) där varje användare är en isolerad process. Systemet blir snabbare ju mer det används, inte långsammare.
+                    {t('philosophySection.features.scalability.description')}
                 </p>
             </div>
           </div>
@@ -56,19 +57,19 @@ const Philosophy: React.FC<PhilosophyProps> = ({ onNavigate }) => {
                 <div className="w-12 h-12 bg-teal-500/20 rounded-2xl flex items-center justify-center text-teal-400 mb-6 border border-teal-500/30">
                     <ShieldCheck className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-serif mb-3">Självläkande</h3>
+                <h3 className="text-2xl font-serif mb-3">{t('philosophySection.features.selfHealing.title')}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">
-                    "Let it crash". Om en del av systemet får problem, startar vi om just den delen på mikrosekunder. Resten av systemet påverkas aldrig.
+                    {t('philosophySection.features.selfHealing.description')}
                 </p>
              </div>
              <div className="mt-8 pt-8 border-t border-slate-700/50">
                 <div className="flex items-center text-xs font-mono text-teal-400">
                     <ServerCrash className="w-4 h-4 mr-2" />
-                    <span>Error detected. Restarting process...</span>
+                    <span>{t('philosophySection.features.selfHealing.errorDetected')}</span>
                 </div>
                 <div className="flex items-center text-xs font-mono text-green-400 mt-1">
                     <ShieldCheck className="w-4 h-4 mr-2" />
-                    <span>System healthy.</span>
+                    <span>{t('philosophySection.features.selfHealing.systemHealthy')}</span>
                 </div>
              </div>
           </div>
@@ -78,9 +79,9 @@ const Philosophy: React.FC<PhilosophyProps> = ({ onNavigate }) => {
             <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 mb-6 group-hover:scale-110 transition-transform">
                 <Zap className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Kostnadseffektivt</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">{t('philosophySection.features.cost.title')}</h3>
             <p className="text-slate-600 text-sm">
-                Upp till 80% lägre infrastrukturkostnader. Vi gör mer med mindre hårdvara.
+                {t('philosophySection.features.cost.description')}
             </p>
           </div>
 
@@ -89,9 +90,9 @@ const Philosophy: React.FC<PhilosophyProps> = ({ onNavigate }) => {
             <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform">
                 <BrainCircuit className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Redo för AI</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">{t('philosophySection.features.ai.title')}</h3>
             <p className="text-slate-600 text-sm">
-                Byggt för agenter och parallella processer från dag ett. Inte efterkonstruerat.
+                {t('philosophySection.features.ai.description')}
             </p>
           </div>
 
@@ -103,9 +104,9 @@ const Philosophy: React.FC<PhilosophyProps> = ({ onNavigate }) => {
                     </div>
                 </div>
                 <div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">Massiv Concurrency</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">{t('philosophySection.features.concurrency.title')}</h3>
                     <p className="text-slate-600 text-sm">
-                        Medan andra servrar svettas vid 1000 anslutningar, gäspar våra vid 100 000.
+                        {t('philosophySection.features.concurrency.description')}
                     </p>
                 </div>
            </div>

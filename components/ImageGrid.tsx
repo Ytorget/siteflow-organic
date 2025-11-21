@@ -1,14 +1,17 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ImageGrid: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-            <span className="text-blue-600 font-bold tracking-wider text-sm uppercase mb-3 block">Insidan</span>
-            <h2 className="text-4xl md:text-5xl font-serif text-slate-900 mb-6">Bakom kulisserna</h2>
+            <span className="text-blue-600 font-bold tracking-wider text-sm uppercase mb-3 block">{t('imageGrid.badge')}</span>
+            <h2 className="text-4xl md:text-5xl font-serif text-slate-900 mb-6">{t('imageGrid.title')}</h2>
             <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                Inga generiska stock-foton. Så här ser det ut när vi designar flöden och löser problem.
+                {t('imageGrid.description')}
             </p>
         </div>
 
@@ -24,7 +27,7 @@ const ImageGrid: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
                 <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-slate-900">
-                    Live Arkitektur
+                    {t('imageGrid.labels.liveArchitecture')}
                 </div>
             </div>
 
@@ -36,7 +39,7 @@ const ImageGrid: React.FC = () => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-slate-900">
-                    Flödesdesign
+                    {t('imageGrid.labels.flowDesign')}
                 </div>
             </div>
 

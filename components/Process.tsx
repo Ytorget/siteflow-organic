@@ -1,30 +1,33 @@
 import React from 'react';
 import { Search, PenTool, Code2, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Process: React.FC = () => {
+  const { t } = useTranslation();
+
   const steps = [
     {
       id: 1,
-      title: "Analys & Diagnos",
-      description: "Vi börjar inte med att koda. Vi börjar med att förstå flödet. Var läcker resurserna?",
+      title: t('process.steps.analysis.title'),
+      description: t('process.steps.analysis.description'),
       icon: <Search className="w-6 h-6" />
     },
     {
       id: 2,
-      title: "Flytande Arkitektur",
-      description: "Vi designar systemet som ett ekosystem. Vi ritar upp hur data ska flöda för att minimera friktion.",
+      title: t('process.steps.architecture.title'),
+      description: t('process.steps.architecture.description'),
       icon: <PenTool className="w-6 h-6" />
     },
     {
       id: 3,
-      title: "Konstruktion",
-      description: "Vi bygger med Elixir/OTP. System som kan krascha tusentals gånger utan att användaren märker det.",
+      title: t('process.steps.construction.title'),
+      description: t('process.steps.construction.description'),
       icon: <Code2 className="w-6 h-6" />
     },
     {
       id: 4,
-      title: "Levande Skalning",
-      description: "Systemet sjösätts. Designat för att svälla vid hög trafik och dra ihop sig vid låg.",
+      title: t('process.steps.scaling.title'),
+      description: t('process.steps.scaling.description'),
       icon: <Activity className="w-6 h-6" />
     }
   ];
@@ -33,12 +36,12 @@ const Process: React.FC = () => {
     <section className="py-32 bg-white relative overflow-hidden">
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <span className="text-blue-600 font-bold tracking-wider text-sm uppercase mb-3 block">Metodik</span>
+          <span className="text-blue-600 font-bold tracking-wider text-sm uppercase mb-3 block">{t('process.badge')}</span>
           <h2 className="text-4xl md:text-5xl font-serif text-slate-900 mb-6">
-            Från stillastående till strömmande
+            {t('process.title')}
           </h2>
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            En process designad för att ta bort friktion.
+            {t('process.description')}
           </p>
         </div>
 
