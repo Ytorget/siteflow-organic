@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { ConsultationState, ConsultationResponse } from '../types';
 import { assessSystemNeeds } from '../services/geminiService';
 import { Loader2, ArrowRight, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ConsultationTool: React.FC = () => {
+  const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [state, setState] = useState<ConsultationState>(ConsultationState.IDLE);
   const [result, setResult] = useState<ConsultationResponse | null>(null);
@@ -42,26 +44,26 @@ const ConsultationTool: React.FC = () => {
                <div className="relative z-10">
                  <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-blue-200 mb-6 border border-white/10">
                     <Sparkles className="w-3 h-3" />
-                    <span>AI-Driven Analys</span>
+                    <span>{t('consultationTool.badge')}</span>
                  </div>
-                 <h3 className="text-3xl font-serif mb-4 leading-tight">Osäker på var du ska börja?</h3>
+                 <h3 className="text-3xl font-serif mb-4 leading-tight">{t('consultationTool.title')}</h3>
                  <p className="text-slate-300 text-sm leading-relaxed mb-8">
-                   Beskriv din tekniska utmaning. Vår AI-arkitekt ger dig en första bedömning om Siteflow-modellen passar dina behov – helt utan säljsamtal.
+                   {t('consultationTool.description')}
                  </p>
                </div>
 
                <div className="relative z-10 space-y-4">
                  <div className="flex items-center space-x-3 text-sm text-slate-300">
                     <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" />
-                    <span>Omedelbar återkoppling</span>
+                    <span>{t('consultationTool.benefit1')}</span>
                  </div>
                  <div className="flex items-center space-x-3 text-sm text-slate-300">
                     <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" />
-                    <span>Ingen e-post krävs</span>
+                    <span>{t('consultationTool.benefit2')}</span>
                  </div>
                  <div className="flex items-center space-x-3 text-sm text-slate-300">
                     <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" />
-                    <span>Ärlig match-score (vi säger nej om vi inte passar)</span>
+                    <span>{t('consultationTool.benefit3')}</span>
                  </div>
                </div>
             </div>
@@ -72,16 +74,16 @@ const ConsultationTool: React.FC = () => {
               {state === ConsultationState.IDLE && (
                 <form onSubmit={handleSubmit} className="h-full flex flex-col justify-center animate-fade-in">
                   <label htmlFor="problem" className="block text-base font-semibold text-slate-900 mb-2">
-                    Beskriv din situation
+                    {t('consultationTool.formLabel')}
                   </label>
-                  <p className="text-xs text-slate-500 mb-4">Var så specifik du kan. T.ex. "Vi har 500k användare men databasen låser sig vid peaks."</p>
-                  
+                  <p className="text-xs text-slate-500 mb-4">{t('consultationTool.formHelp')}</p>
+
                   <div className="relative">
                     <textarea
                         id="problem"
                         rows={5}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none shadow-inner text-sm"
-                        placeholder="Skriv här..."
+                        placeholder={t('consultationTool.placeholder')}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                     />
@@ -93,7 +95,7 @@ const ConsultationTool: React.FC = () => {
                         disabled={!input.trim()}
                         className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white py-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                     >
-                        <span>Starta analys</span>
+                        <span>{t('consultationTool.submitButton')}</span>
                         <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -109,8 +111,8 @@ const ConsultationTool: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-slate-900 font-serif text-lg mb-2">Analyserar mönster...</h4>
-                    <p className="text-slate-500 text-sm">Jämför med arkitektur-modeller från WhatsApp & Discord.</p>
+                    <h4 className="text-slate-900 font-serif text-lg mb-2">{t('consultationTool.analyzingTitle')}</h4>
+                    <p className="text-slate-500 text-sm">{t('consultationTool.analyzingDescription')}</p>
                   </div>
                 </div>
               )}
@@ -118,12 +120,12 @@ const ConsultationTool: React.FC = () => {
               {state === ConsultationState.COMPLETE && result && (
                 <div className="h-full flex flex-col justify-center animate-fade-in">
                   <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Analysresultat</span>
+                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t('consultationTool.resultTitle')}</span>
                     <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-bold ${result.fitScore > 70 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      <span>{result.fitScore}% Match</span>
+                      <span>{result.fitScore}% {t('consultationTool.matchLabel')}</span>
                     </div>
                   </div>
-                  
+
                   <div className="bg-slate-50 p-6 rounded-xl mb-8 border border-slate-100">
                     <p className="text-slate-700 text-base leading-relaxed italic">
                         "{result.analysis}"
@@ -133,29 +135,29 @@ const ConsultationTool: React.FC = () => {
                   <div className="mt-auto">
                     {result.fitScore > 60 ? (
                         <div className="space-y-3">
-                            <p className="text-slate-500 text-sm text-center">Vi bör definitivt prata vidare.</p>
+                            <p className="text-slate-500 text-sm text-center">{t('consultationTool.highScoreMessage')}</p>
                             <a href="mailto:hello@siteflow.se" className="block w-full text-center bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-500 transition-all shadow-md">
-                            Boka ett strategimöte
+                            {t('consultationTool.highScoreCta')}
                             </a>
                              <button onClick={() => setState(ConsultationState.IDLE)} className="block w-full text-center text-sm text-slate-400 hover:text-slate-600 py-2">
-                                Gör en ny analys
+                                {t('consultationTool.retryButton')}
                             </button>
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            <p className="text-slate-500 text-sm text-center">Vi är kanske inte rätt, men vi pratar gärna.</p>
+                            <p className="text-slate-500 text-sm text-center">{t('consultationTool.lowScoreMessage')}</p>
                             <div className="grid grid-cols-2 gap-4">
-                              <a 
-                                href="mailto:hello@siteflow.se" 
+                              <a
+                                href="mailto:hello@siteflow.se"
                                 className="flex items-center justify-center w-full bg-slate-900 text-white py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
                               >
-                                Starta dialog
+                                {t('consultationTool.lowScoreCta1')}
                               </a>
-                              <button 
-                                onClick={() => setState(ConsultationState.IDLE)} 
+                              <button
+                                onClick={() => setState(ConsultationState.IDLE)}
                                 className="flex items-center justify-center w-full bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-medium hover:bg-slate-50 transition-colors"
                               >
-                                  Gör ny sökning
+                                  {t('consultationTool.lowScoreCta2')}
                               </button>
                             </div>
                         </div>
@@ -167,9 +169,9 @@ const ConsultationTool: React.FC = () => {
               {state === ConsultationState.ERROR && (
                  <div className="h-full flex flex-col items-center justify-center text-slate-900 space-y-4">
                  <AlertCircle className="w-12 h-12 text-red-500" />
-                 <h4 className="font-bold text-lg">Hoppsan</h4>
-                 <p className="text-slate-500 text-center max-w-xs">Något gick fel vid analysen. Kontrollera din anslutning och försök igen.</p>
-                 <button onClick={() => setState(ConsultationState.IDLE)} className="text-blue-600 font-medium hover:underline mt-4">Försök igen</button>
+                 <h4 className="font-bold text-lg">{t('consultationTool.errorTitle')}</h4>
+                 <p className="text-slate-500 text-center max-w-xs">{t('consultationTool.errorMessage')}</p>
+                 <button onClick={() => setState(ConsultationState.IDLE)} className="text-blue-600 font-medium hover:underline mt-4">{t('consultationTool.errorButton')}</button>
                </div>
               )}
 

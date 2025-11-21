@@ -399,5 +399,55 @@
       "flowDesign": "Flödesdesign",
       "inHouse": "In-House"
     }
+  },
+  "audienceFilter": {
+    "badge": "Matchning",
+    "title": "Vem vi är till för",
+    "subtitle": "Vi tror på ärlighet. Om du är nöjd med hur det är idag, är vi förmodligen inte rätt för dig.",
+    "rightFitTitle": "Vi ska prata om du:",
+    "rightFitItems": [
+      "Ser tekniska system som en långsiktig investering",
+      "Är trött på 'brandkårsutryckningar' och krascher",
+      "Planerar att skala upp kraftigt inom ett år",
+      "Värdesätter kvalitet som sänker kostnaden över tid"
+    ],
+    "wrongFitTitle": "Vi är inte rätt om du:",
+    "wrongFitItems": [
+      "Söker den absolut billigaste lösningen just nu",
+      "Bara behöver en enkel presentationssida",
+      "Vill ha en 'quick fix' utan att lösa grundproblemet",
+      "Älskar buzzwords och 'tech-bro' kultur"
+    ]
+  },
+  "consultationTool": {
+    "badge": "AI-Driven Analys",
+    "title": "Osäker på var du ska börja?",
+    "description": "Beskriv din tekniska utmaning. Vår AI-arkitekt ger dig en första bedömning om Siteflow-modellen passar dina behov – helt utan säljsamtal.",
+    "benefit1": "Omedelbar återkoppling",
+    "benefit2": "Ingen e-post krävs",
+    "benefit3": "Ärlig match-score (vi säger nej om vi inte passar)",
+    "formLabel": "Beskriv din situation",
+    "formHelp": "Var så specifik du kan. T.ex. \"Vi har 500k användare men databasen låser sig vid peaks.\"",
+    "placeholder": "Skriv här...",
+    "submitButton": "Starta analys",
+    "analyzingTitle": "Analyserar mönster...",
+    "analyzingDescription": "Jämför med arkitektur-modeller från WhatsApp & Discord.",
+    "resultTitle": "Analysresultat",
+    "matchLabel": "Match",
+    "highScoreMessage": "Vi bör definitivt prata vidare.",
+    "highScoreCta": "Boka ett strategimöte",
+    "retryButton": "Gör en ny analys",
+    "lowScoreMessage": "Vi är kanske inte rätt, men vi pratar gärna.",
+    "lowScoreCta1": "Starta dialog",
+    "lowScoreCta2": "Gör ny sökning",
+    "errorTitle": "Hoppsan",
+    "errorMessage": "Något gick fel vid analysen. Kontrollera din anslutning och försök igen.",
+    "errorButton": "Försök igen"
+  },
+  "stats": {
+    "stat1": "Lägre infrastrukturkostnad",
+    "stat2": "Historisk uptime",
+    "stat3": "Användare per server",
+    "stat4": "Gömda avgifter"
   }
 }

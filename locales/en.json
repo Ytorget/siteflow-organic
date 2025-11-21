@@ -399,5 +399,55 @@
       "flowDesign": "Flow Design",
       "inHouse": "In-House"
     }
+  },
+  "audienceFilter": {
+    "badge": "Matching",
+    "title": "Who we build for",
+    "subtitle": "We believe in honesty. If you're happy with how things are today, we're probably not right for you.",
+    "rightFitTitle": "We should talk if you:",
+    "rightFitItems": [
+      "See technical systems as a long-term investment",
+      "Are tired of 'firefighting' and crashes",
+      "Plan to scale significantly within a year",
+      "Value quality that reduces costs over time"
+    ],
+    "wrongFitTitle": "We're not right if you:",
+    "wrongFitItems": [
+      "Are looking for the absolute cheapest solution right now",
+      "Only need a simple presentation site",
+      "Want a 'quick fix' without solving the root problem",
+      "Love buzzwords and 'tech-bro' culture"
+    ]
+  },
+  "consultationTool": {
+    "badge": "AI-Driven Analysis",
+    "title": "Unsure where to start?",
+    "description": "Describe your technical challenge. Our AI architect gives you an initial assessment of whether the Siteflow model fits your needs – completely without sales talk.",
+    "benefit1": "Immediate feedback",
+    "benefit2": "No email required",
+    "benefit3": "Honest match score (we say no if we're not a fit)",
+    "formLabel": "Describe your situation",
+    "formHelp": "Be as specific as you can. E.g. \"We have 500k users but the database locks up during peaks.\"",
+    "placeholder": "Write here...",
+    "submitButton": "Start analysis",
+    "analyzingTitle": "Analyzing patterns...",
+    "analyzingDescription": "Comparing with architecture models from WhatsApp & Discord.",
+    "resultTitle": "Analysis Result",
+    "matchLabel": "Match",
+    "highScoreMessage": "We should definitely talk further.",
+    "highScoreCta": "Book a strategy meeting",
+    "retryButton": "Run a new analysis",
+    "lowScoreMessage": "We may not be right, but we're happy to talk.",
+    "lowScoreCta1": "Start dialog",
+    "lowScoreCta2": "Run new search",
+    "errorTitle": "Oops",
+    "errorMessage": "Something went wrong with the analysis. Check your connection and try again.",
+    "errorButton": "Try again"
+  },
+  "stats": {
+    "stat1": "Lower infrastructure cost",
+    "stat2": "Historical uptime",
+    "stat3": "Users per server",
+    "stat4": "Hidden fees"
   }
 }
