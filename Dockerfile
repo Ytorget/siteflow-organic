@@ -1,21 +1,4 @@
-# Build stage
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Build the React app
-RUN npm run build
-
-# Production stage
+# Use Node.js LTS
 FROM node:20-alpine
 
 WORKDIR /app
@@ -23,14 +6,17 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (needed for build)
+RUN npm ci
 
-# Copy built frontend from builder
-COPY --from=builder /app/dist ./dist
+# Copy all source code
+COPY . .
 
-# Copy server code
-COPY server ./server
+# Build the React frontend
+RUN npm run build
+
+# Remove dev dependencies after build
+RUN npm prune --production
 
 # Expose port
 EXPOSE 3000
