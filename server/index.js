@@ -2,6 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 dotenv.config();
 
@@ -13,10 +18,20 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from dist folder in production
-app.use(express.static('dist'));
+app.use(express.static(join(__dirname, '../dist')));
 
-// Initialize Gemini API
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazy initialize Gemini API only when needed
+let ai = null;
+const getAI = () => {
+  if (!ai) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY environment variable is not set');
+    }
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+};
 
 const SYSTEM_INSTRUCTION = `
 Du är en senior systemarkitekt på Siteflow. Siteflow är ett företag som bygger digitala system inspirerade av vatten: de är följsamma, självläkande och extremt skalbara (likt Erlang/Elixir-arkitektur).
@@ -53,7 +68,8 @@ app.post('/api/assess-system-needs', async (req, res) => {
       });
     }
 
-    const response = await ai.models.generateContent({
+    const aiClient = getAI();
+    const response = await aiClient.models.generateContent({
       model: "gemini-2.5-flash",
       contents: userProblem,
       config: {
@@ -93,9 +109,12 @@ app.get('/api/health', (req, res) => {
 
 // Serve React app for all other routes
 app.get('*', (req, res) => {
-  res.sendFile('dist/index.html', { root: '.' });
+  res.sendFile(join(__dirname, '../dist/index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start server - bind to 0.0.0.0 for Fly.io
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`GEMINI_API_KEY set: ${!!process.env.GEMINI_API_KEY}`);
 });
