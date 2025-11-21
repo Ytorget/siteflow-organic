@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logos/siteflow-logo/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Siteflow | Digitala system som flödar naturligt</title>
+    <meta name="description" content="Siteflow bygger självläkande, skalbara digitala system inspirerade av naturens flöden. Vi hjälper företag hantera miljontals användare och minska molnkostnader." />
+    
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://siteflow.se/" />
+    <meta property="og:title" content="Siteflow | Digitala system som flödar naturligt" />
+    <meta property="og:description" content="Vi bygger självläkande, skalbara system med Erlang/Elixir. Minska kostnader med 80% och hantera miljontals användare." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1200&q=80" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://siteflow.se/" />
+    <meta property="twitter:title" content="Siteflow | Digitala system som flödar naturligt" />
+    <meta property="twitter:description" content="Vi bygger självläkande, skalbara system med Erlang/Elixir. Minska kostnader med 80% och hantera miljontals användare." />
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1200&q=80" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        scroll-behavior: smooth;
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Playfair Display', serif;
+      }
+
+      .water-gradient {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      }
+      
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .text-gradient {
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-image: linear-gradient(to right, #0ea5e9, #2563eb);
+      }
+
+      /* Fluid animation background */
+      .wave-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+        background: #0f172a;
+      }
+      
+      .wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 200%;
+        height: 100%;
+        background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDQwIDMyMCI+PHBhdGggZmlsbD0iIzAyODRYzIiIGZpbGwtb3BhY2l0eT0iMC4wNSIgZD0iTTAsMTkyTDQ4LDE5N0MxNiwxOTIsMTkyLDE5MiwxOTIsMTkyQzE5MiwxOTIsMjg4LDE2MCwyODgsMTYwQzI4OCwxNjAsMzg0LDE5MiwzODQsMTkyQzM4NCwxOTIsNDgwLDIyNCw0ODAsMjI0QzQ4MCwyMjQsNTc2LDE5Miw1NzYsMTkyQzU3NiwxOTIsNjcyLDE2MCw2NzIsMTYwQzY3MiwxNjAsNzY4LDE5Miw3NjgsMTkyQzc2OCwxOTIsODY0LDIyNCw4NjQsMjI0Qzg2NCwyMjQsOTYwLDE5Miw5NjAsMTkyQzk2MCwxOTIsMTA1NiwxNjAsMTA1NiwxNjBDMTA1NiwxNjAsMTE1MiwxOTIsMTE1MiwxOTJDMTE1MiwxOTIsMTI0OCwyMjQsMTI0OCwyMjRDMTI0OCwyMjQsMTM0NCwxOTIsMTM0NCwxOTJMMTQ0MCwxOTJMMTQ0MCwzMjBMMTM0NCwzMjBDMTI0OCwzMjAsMTE1MiwzMjAsMTE1MiwzMjBDMTA1NiwzMjAsOTYwLDMyMCw5NjAsMzIwQzg2NCwzMjAsNzY4LDMyMCw3NjgsMzIwQzY3MiwzMjAsNTc2LDMyMCw1NzYsMzIwQzQ4MCwzMjAsMzg0LDMyMCwzODQsMzIwQzI4OCwzMjAsMTkyLDMyMCwxOTIsMzIwQzk2LDMyMCw0OCwzMjAsNDgsMzIwTDAsMzIwWiI+PC9wYXRoPjwvc3ZnPg==');
+        background-size: 50% 100%;
+        animation: wave 20s linear infinite;
+        opacity: 0.3;
+      }
+      
+      .wave:nth-child(2) {
+        animation-duration: 15s;
+        opacity: 0.2;
+        bottom: 10px;
+      }
+      
+      @keyframes wave {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+
+      /* Framework carousel animation */
+      @keyframes scroll-infinite {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-33.333%)); }
+      }
+
+      .animate-scroll-infinite {
+        animation: scroll-infinite 30s linear infinite;
+        will-change: transform;
+      }
+
+      .animate-scroll-infinite:hover {
+        animation-play-state: paused;
+      }
+
+      /* Integration carousel animations removed to fix layout issues */
+    </style>
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Siteflow",
+      "url": "https://siteflow.se",
+      "description": "Siteflow bygger digitala system som är självläkande, skalbara och kostnadseffektiva.",
+      "sameAs": [
+        "https://twitter.com/siteflow",
+        "https://linkedin.com/company/siteflow"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "hello@siteflow.se",
+        "contactType": "customer service"
+      }
+    }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+  }
+}
+</script>
+</head>
+  <body class="text-slate-800 antialiased bg-slate-50">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
