@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { Page, NavItem } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface NavigationProps {
   currentPage: Page;
@@ -8,6 +9,7 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate }) => {
+  const { t, i18n } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -20,11 +22,16 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate }) => {
   }, []);
 
   const navLinks: NavItem[] = [
-    { label: 'Hem', page: 'home' },
-    { label: 'Filosofi', page: 'philosophy' },
-    { label: 'För Vem?', page: 'audience' },
-    { label: 'Resultat', page: 'results' },
+    { label: t('nav.home'), page: 'home' },
+    { label: t('nav.philosophy'), page: 'philosophy' },
+    { label: t('nav.audience'), page: 'audience' },
+    { label: t('nav.results'), page: 'results' },
   ];
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'sv' ? 'en' : 'sv';
+    i18n.changeLanguage(newLang);
+  };
 
   const handleNavClick = (page: Page) => {
     onNavigate(page);
@@ -65,16 +72,24 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate }) => {
           ))}
           <div className="flex items-center gap-3 ml-4">
             <button
+              onClick={toggleLanguage}
+              className="px-3 py-2.5 rounded-full text-sm font-medium transition-all duration-300 border border-white/20 hover:bg-white/10 text-white flex items-center gap-2"
+              title={i18n.language === 'sv' ? 'Switch to English' : 'Byt till Svenska'}
+            >
+              <Globe className="w-4 h-4" />
+              {i18n.language === 'sv' ? 'EN' : 'SV'}
+            </button>
+            <button
               onClick={() => handleNavClick('login')}
               className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 border border-white/20 hover:bg-white/10 text-white"
             >
-              Logga in
+              {t('nav.login')}
             </button>
             <button
               onClick={() => handleNavClick('contact')}
               className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 text-white hover:shadow-lg hover:shadow-cyan-300/50"
             >
-              Starta dialog
+              {t('nav.contact')}
             </button>
           </div>
         </div>
@@ -101,16 +116,23 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate }) => {
             </button>
           ))}
           <button
+            onClick={toggleLanguage}
+            className="border border-slate-200 text-slate-700 text-center py-3 rounded-lg font-medium hover:bg-slate-50 flex items-center justify-center gap-2"
+          >
+            <Globe className="w-4 h-4" />
+            {i18n.language === 'sv' ? 'Switch to English' : 'Byt till Svenska'}
+          </button>
+          <button
             onClick={() => handleNavClick('login')}
             className="border border-slate-200 text-slate-700 text-center py-3 rounded-lg font-medium hover:bg-slate-50"
           >
-            Logga in
+            {t('nav.login')}
           </button>
           <button
             onClick={() => handleNavClick('contact')}
             className="bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 text-white text-center py-3 rounded-lg font-medium"
           >
-            Starta dialog
+            {t('nav.contact')}
           </button>
         </div>
       )}

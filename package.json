@@ -15,9 +15,11 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "i18next": "^25.6.3",
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-i18next": "^16.3.5"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

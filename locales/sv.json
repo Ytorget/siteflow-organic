@@ -1,0 +1,106 @@
+{
+  "nav": {
+    "home": "Hem",
+    "philosophy": "Filosofi",
+    "audience": "För Vem?",
+    "results": "Resultat",
+    "contact": "Starta Dialog",
+    "login": "Logga in"
+  },
+  "hero": {
+    "status": "System Status: Optimal",
+    "title": "Teknik som flödar",
+    "titleHighlight": "som vatten.",
+    "description": "Vi bygger självläkande system som skalar naturligt. Inga krascher. Inga exploderande kostnader. Bara ett stadigt, oavbrutet flöde.",
+    "ctaAnalyze": "Starta analys",
+    "ctaPhilosophy": "Vår filosofi",
+    "teamContact": "Direktkontakt med arkitekterna",
+    "responseTime": "Svar inom 2 timmar",
+    "activeConnections": "Active Connections",
+    "responseTimeLabel": "Response Time",
+    "globalAverage": "Global Average",
+    "live": "Live"
+  },
+  "philosophy": {
+    "heroTitle": "Vår filosofi",
+    "heroSubtitle": "System som flödar naturligt",
+    "heroDescription": "Vi tror inte på att tvinga teknik. Vi bygger system som anpassar sig, läker sig själva och skalar utan motstånd.",
+    "waterTitle": "Vatten som metafor",
+    "waterDescription": "Vatten hittar alltid vägen. Det anpassar sig till terrängen, flödar runt hinder och blir starkare i grupp. Så bygger vi digitala system – följsamma, självläkande och oändligt skalbara.",
+    "erlangTitle": "Erlang/Elixir-filosofin",
+    "erlangDescription": "Vi bygger på Erlang VM – en plattform designad för att aldrig gå ner. Processer som kraschar återuppstår automatiskt. System som klarar miljontals samtidiga anslutningar. Teknik som WhatsApp och Discord litar på.",
+    "ctaReady": "Är ni redo?"
+  },
+  "audience": {
+    "heroTitle": "För vem bygger vi?",
+    "heroSubtitle": "Ni har vuxit ur era nuvarande lösningar",
+    "heroDescription": "Om er tjänst kraschar under hög last, om molnkostnaderna exploderar eller om ni behöver garanterad uptime – då är vi rätt partner.",
+    "scalingTitle": "Er tjänst växer snabbt",
+    "scalingDescription": "Ni har börjat se begränsningar i er nuvarande arkitektur. Servrar som kraschar. Databasen som inte klarar lasten. Kostnader som skenar.",
+    "uptimeTitle": "Ni behöver garanterad uptime",
+    "uptimeDescription": "Varje minut av driftstopp kostar pengar eller förtroende. Ni behöver system som är byggda för att aldrig gå ner.",
+    "costTitle": "Molnkostnader som exploderar",
+    "costDescription": "Ni skalar genom att slänga mer hårdvara på problemet. Men det finns smartare sätt att hantera miljontals användare.",
+    "notForTitle": "Vi är inte rätt om...",
+    "notForDescription": "Ni bara behöver en enkel hemsida, en landningssida eller visuell design. För det finns enklare verktyg."
+  },
+  "results": {
+    "heroTitle": "Resultat som talar",
+    "heroSubtitle": "Verkliga system. Verklig påverkan.",
+    "heroDescription": "Vi mäter framgång i uptime, skalbarhet och minskade kostnader – inte i powerpoint-presentationer."
+  },
+  "contact": {
+    "heroTitle": "Starta dialog",
+    "heroSubtitle": "Berätta om era utmaningar",
+    "heroDescription": "Fyll i formuläret så analyserar vi om vår filosofi passar era behov. Svar inom 2 timmar.",
+    "formTitle": "Beskriv era utmaningar",
+    "formDescription": "Desto mer detaljer ni ger, desto bättre kan vi bedöma hur vi kan hjälpa er. Tänk på: Antal användare, nuvarande problem, teknisk stack.",
+    "problemLabel": "Beskriv ert system och utmaningar",
+    "problemPlaceholder": "T.ex: \"Vi har en SaaS-plattform med 50 000 användare. Under högtrafik (>1000 samtidiga) börjar systemet bli långsamt och ibland kraschar det. Vi kör Node.js på AWS med en PostgreSQL-databas. Molnkostnaderna har ökat med 300% senaste året.\"",
+    "analyzing": "Analyserar era behov...",
+    "analyze": "Analysera fit",
+    "analysisTitle": "Vår analys",
+    "fitScore": "Fit Score",
+    "perfectMatch": "Perfekt match",
+    "goodMatch": "Bra match",
+    "possibleMatch": "Möjlig match",
+    "notIdeal": "Inte idealiskt",
+    "nextSteps": "Vad händer nu?",
+    "nextStepsDescription": "Vi har skickat denna analys till vårt team. Om fit-scoren är över 60 hör någon av våra arkitekter av sig inom 2 timmar för att boka ett djupare samtal."
+  },
+  "login": {
+    "title": "Logga in",
+    "subtitle": "Välkommen tillbaka",
+    "emailLabel": "E-post",
+    "emailPlaceholder": "din@epost.se",
+    "passwordLabel": "Lösenord",
+    "passwordPlaceholder": "••••••••",
+    "rememberMe": "Kom ihåg mig",
+    "forgotPassword": "Glömt lösenord?",
+    "loginButton": "Logga in",
+    "noAccount": "Inget konto?",
+    "signUp": "Skapa ett"
+  },
+  "integrations": {
+    "title": "Integrationer",
+    "subtitle": "Integrera med era nuvarande lösningar",
+    "description": "Våra system är byggda för att smidigt integrera med er befintliga infrastruktur."
+  },
+  "testimonials": {
+    "title": "Förtroende",
+    "subtitle": "Vad våra kunder säger"
+  },
+  "cta": {
+    "title": "Redo att börja?",
+    "description": "Låt oss analysera om vår filosofi passar era behov.",
+    "button": "Starta dialog"
+  },
+  "footer": {
+    "description": "Vi bygger självläkande system som flödar naturligt. Inga krascher. Inga exploderande kostnader.",
+    "company": "Företag",
+    "product": "Produkt",
+    "resources": "Resurser",
+    "legal": "Juridiskt",
+    "rights": "Alla rättigheter förbehållna."
+  }
+}

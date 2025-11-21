@@ -1,12 +1,15 @@
 import React from 'react';
 import { ArrowRight, Activity, Zap } from 'lucide-react';
 import { Page } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface HeroProps {
   onNavigate: (page: Page) => void;
 }
 
 const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
+  const { t } = useTranslation();
+
   return (
     <section className="relative min-h-screen flex items-center bg-slate-900 text-white pt-24 pb-12 overflow-hidden">
       
@@ -30,31 +33,31 @@ const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                     </span>
-                    <span className="text-sm font-medium text-slate-300 tracking-wide uppercase">System Status: Optimal</span>
+                    <span className="text-sm font-medium text-slate-300 tracking-wide uppercase">{t('hero.status')}</span>
                 </div>
 
                 <h1 className="text-5xl md:text-7xl font-serif font-medium leading-tight">
-                  Teknik som flödar <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300">som vatten.</span>
+                  {t('hero.title')} <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300">{t('hero.titleHighlight')}</span>
                 </h1>
-                
+
                 <p className="text-lg md:text-xl text-slate-300 max-w-xl leading-relaxed font-light border-l-2 border-blue-500/30 pl-6">
-                  Vi bygger självläkande system som skalar naturligt. Inga krascher. Inga exploderande kostnader. Bara ett stadigt, oavbrutet flöde.
+                  {t('hero.description')}
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <button 
-                    onClick={() => onNavigate('contact')} 
+                  <button
+                    onClick={() => onNavigate('contact')}
                     className="px-8 py-4 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition-all flex items-center justify-center space-x-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
                   >
-                    <span>Starta analys</span>
+                    <span>{t('hero.ctaAnalyze')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => onNavigate('philosophy')}
                     className="px-8 py-4 border border-white/20 rounded-full font-medium hover:bg-white/10 transition-colors text-slate-200 flex items-center justify-center"
                   >
-                    Vår filosofi
+                    {t('hero.ctaPhilosophy')}
                   </button>
                 </div>
 
@@ -67,8 +70,8 @@ const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
                             <img src="/team-avatars/Rakesh.jpg" alt="Rakesh" className="w-10 h-10 rounded-full border-2 border-slate-900 object-cover" />
                          </div>
                          <div className="text-sm">
-                            <p className="text-white font-medium">Direktkontakt med arkitekterna</p>
-                            <p className="text-slate-400 text-xs">Svar inom 2 timmar</p>
+                            <p className="text-white font-medium">{t('hero.teamContact')}</p>
+                            <p className="text-slate-400 text-xs">{t('hero.responseTime')}</p>
                          </div>
                     </div>
                 </div>
@@ -93,23 +96,23 @@ const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
                         {/* Stat Card 1 */}
                         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-slate-400 text-xs uppercase">Active Connections</span>
+                                <span className="text-slate-400 text-xs uppercase">{t('hero.activeConnections')}</span>
                                 <Activity className="w-4 h-4 text-green-400" />
                             </div>
                             <div className="text-2xl font-mono text-white font-bold">2,405,192</div>
                             <div className="text-xs text-green-400 mt-1 flex items-center">
-                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1"></span> Live
+                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1"></span> {t('hero.live')}
                             </div>
                         </div>
 
                         {/* Stat Card 2 */}
                         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-slate-400 text-xs uppercase">Response Time</span>
+                                <span className="text-slate-400 text-xs uppercase">{t('hero.responseTimeLabel')}</span>
                                 <Zap className="w-4 h-4 text-yellow-400" />
                             </div>
                             <div className="text-2xl font-mono text-white font-bold">12ms</div>
-                            <div className="text-xs text-slate-500 mt-1">Global Average</div>
+                            <div className="text-xs text-slate-500 mt-1">{t('hero.globalAverage')}</div>
                         </div>
 
                         {/* Graph Area */}

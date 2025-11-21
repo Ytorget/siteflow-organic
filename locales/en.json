@@ -1,0 +1,106 @@
+{
+  "nav": {
+    "home": "Home",
+    "philosophy": "Philosophy",
+    "audience": "Who For?",
+    "results": "Results",
+    "contact": "Start Dialog",
+    "login": "Log in"
+  },
+  "hero": {
+    "status": "System Status: Optimal",
+    "title": "Technology that flows",
+    "titleHighlight": "like water.",
+    "description": "We build self-healing systems that scale naturally. No crashes. No exploding costs. Just a steady, uninterrupted flow.",
+    "ctaAnalyze": "Start analysis",
+    "ctaPhilosophy": "Our philosophy",
+    "teamContact": "Direct contact with architects",
+    "responseTime": "Response within 2 hours",
+    "activeConnections": "Active Connections",
+    "responseTimeLabel": "Response Time",
+    "globalAverage": "Global Average",
+    "live": "Live"
+  },
+  "philosophy": {
+    "heroTitle": "Our philosophy",
+    "heroSubtitle": "Systems that flow naturally",
+    "heroDescription": "We don't believe in forcing technology. We build systems that adapt, heal themselves, and scale without resistance.",
+    "waterTitle": "Water as a metaphor",
+    "waterDescription": "Water always finds its way. It adapts to the terrain, flows around obstacles, and becomes stronger in groups. That's how we build digital systems – flexible, self-healing, and infinitely scalable.",
+    "erlangTitle": "The Erlang/Elixir philosophy",
+    "erlangDescription": "We build on the Erlang VM – a platform designed to never go down. Processes that crash automatically revive. Systems that handle millions of simultaneous connections. Technology that WhatsApp and Discord trust.",
+    "ctaReady": "Are you ready?"
+  },
+  "audience": {
+    "heroTitle": "Who do we build for?",
+    "heroSubtitle": "You've outgrown your current solutions",
+    "heroDescription": "If your service crashes under high load, if cloud costs are exploding, or if you need guaranteed uptime – then we're the right partner.",
+    "scalingTitle": "Your service is growing fast",
+    "scalingDescription": "You've started seeing limitations in your current architecture. Servers that crash. Databases that can't handle the load. Costs that spiral.",
+    "uptimeTitle": "You need guaranteed uptime",
+    "uptimeDescription": "Every minute of downtime costs money or trust. You need systems built to never go down.",
+    "costTitle": "Cloud costs exploding",
+    "costDescription": "You scale by throwing more hardware at the problem. But there are smarter ways to handle millions of users.",
+    "notForTitle": "We're not right if...",
+    "notForDescription": "You just need a simple website, a landing page, or visual design. For that, there are simpler tools."
+  },
+  "results": {
+    "heroTitle": "Results that speak",
+    "heroSubtitle": "Real systems. Real impact.",
+    "heroDescription": "We measure success in uptime, scalability, and reduced costs – not in PowerPoint presentations."
+  },
+  "contact": {
+    "heroTitle": "Start dialog",
+    "heroSubtitle": "Tell us about your challenges",
+    "heroDescription": "Fill in the form and we'll analyze if our philosophy fits your needs. Response within 2 hours.",
+    "formTitle": "Describe your challenges",
+    "formDescription": "The more details you provide, the better we can assess how we can help you. Think about: Number of users, current problems, tech stack.",
+    "problemLabel": "Describe your system and challenges",
+    "problemPlaceholder": "E.g: \"We have a SaaS platform with 50,000 users. During high traffic (>1000 concurrent) the system becomes slow and sometimes crashes. We run Node.js on AWS with a PostgreSQL database. Cloud costs have increased by 300% in the last year.\"",
+    "analyzing": "Analyzing your needs...",
+    "analyze": "Analyze fit",
+    "analysisTitle": "Our analysis",
+    "fitScore": "Fit Score",
+    "perfectMatch": "Perfect match",
+    "goodMatch": "Good match",
+    "possibleMatch": "Possible match",
+    "notIdeal": "Not ideal",
+    "nextSteps": "What happens now?",
+    "nextStepsDescription": "We've sent this analysis to our team. If the fit score is above 60, one of our architects will reach out within 2 hours to schedule a deeper conversation."
+  },
+  "login": {
+    "title": "Log in",
+    "subtitle": "Welcome back",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "loginButton": "Log in",
+    "noAccount": "No account?",
+    "signUp": "Sign up"
+  },
+  "integrations": {
+    "title": "Integrations",
+    "subtitle": "Integrate with your current solutions",
+    "description": "Our systems are built to seamlessly integrate with your existing infrastructure."
+  },
+  "testimonials": {
+    "title": "Trust",
+    "subtitle": "What our customers say"
+  },
+  "cta": {
+    "title": "Ready to start?",
+    "description": "Let us analyze if our philosophy fits your needs.",
+    "button": "Start dialog"
+  },
+  "footer": {
+    "description": "We build self-healing systems that flow naturally. No crashes. No exploding costs.",
+    "company": "Company",
+    "product": "Product",
+    "resources": "Resources",
+    "legal": "Legal",
+    "rights": "All rights reserved."
+  }
+}
