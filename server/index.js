@@ -107,8 +107,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Serve React app for all other routes
-app.get('*', (req, res) => {
+// Serve React app for all other routes (Express 5 compatible)
+app.get(/.*/, (req, res) => {
   res.sendFile(join(__dirname, '../dist/index.html'));
 });
 
