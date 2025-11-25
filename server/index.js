@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import * as googleAnalyticsService from './services/googleAnalyticsService.js';
+import * as searchConsoleService from './services/searchConsoleService.js';
+import * as pageSpeedService from './services/pageSpeedService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -102,14 +105,170 @@ app.post('/api/assess-system-needs', async (req, res) => {
   }
 });
 
+// ==========================================
+// Google Analytics API Endpoints
+// ==========================================
+
+// Get GA4 traffic overview
+app.get('/api/analytics/overview', async (req, res) => {
+  try {
+    const propertyId = process.env.GA4_PROPERTY_ID;
+    if (!propertyId) {
+      return res.status(400).json({ error: 'GA4_PROPERTY_ID is not configured' });
+    }
+    const data = await googleAnalyticsService.getTrafficOverview(propertyId);
+    res.json(data);
+  } catch (error) {
+    console.error('GA4 overview error:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics data', message: error.message });
+  }
+});
+
+// Get daily traffic data (for charts)
+app.get('/api/analytics/daily', async (req, res) => {
+  try {
+    const propertyId = process.env.GA4_PROPERTY_ID;
+    if (!propertyId) {
+      return res.status(400).json({ error: 'GA4_PROPERTY_ID is not configured' });
+    }
+    const data = await googleAnalyticsService.getDailyTraffic(propertyId);
+    res.json(data);
+  } catch (error) {
+    console.error('GA4 daily traffic error:', error);
+    res.status(500).json({ error: 'Failed to fetch daily traffic data', message: error.message });
+  }
+});
+
+// Get top pages
+app.get('/api/analytics/top-pages', async (req, res) => {
+  try {
+    const propertyId = process.env.GA4_PROPERTY_ID;
+    const limit = parseInt(req.query.limit) || 10;
+    if (!propertyId) {
+      return res.status(400).json({ error: 'GA4_PROPERTY_ID is not configured' });
+    }
+    const data = await googleAnalyticsService.getTopPages(propertyId, limit);
+    res.json(data);
+  } catch (error) {
+    console.error('GA4 top pages error:', error);
+    res.status(500).json({ error: 'Failed to fetch top pages', message: error.message });
+  }
+});
+
+// ==========================================
+// Search Console API Endpoints
+// ==========================================
+
+// Get search performance overview
+app.get('/api/search-console/performance', async (req, res) => {
+  try {
+    const siteUrl = process.env.SEARCH_CONSOLE_SITE_URL;
+    if (!siteUrl) {
+      return res.status(400).json({ error: 'SEARCH_CONSOLE_SITE_URL is not configured' });
+    }
+    const data = await searchConsoleService.getSearchPerformance(siteUrl);
+    res.json(data);
+  } catch (error) {
+    console.error('Search Console performance error:', error);
+    res.status(500).json({ error: 'Failed to fetch search performance', message: error.message });
+  }
+});
+
+// Get daily search performance (for charts)
+app.get('/api/search-console/daily', async (req, res) => {
+  try {
+    const siteUrl = process.env.SEARCH_CONSOLE_SITE_URL;
+    if (!siteUrl) {
+      return res.status(400).json({ error: 'SEARCH_CONSOLE_SITE_URL is not configured' });
+    }
+    const data = await searchConsoleService.getDailySearchPerformance(siteUrl);
+    res.json(data);
+  } catch (error) {
+    console.error('Search Console daily error:', error);
+    res.status(500).json({ error: 'Failed to fetch daily search data', message: error.message });
+  }
+});
+
+// Get top search queries
+app.get('/api/search-console/queries', async (req, res) => {
+  try {
+    const siteUrl = process.env.SEARCH_CONSOLE_SITE_URL;
+    const limit = parseInt(req.query.limit) || 10;
+    if (!siteUrl) {
+      return res.status(400).json({ error: 'SEARCH_CONSOLE_SITE_URL is not configured' });
+    }
+    const data = await searchConsoleService.getTopQueries(siteUrl, limit);
+    res.json(data);
+  } catch (error) {
+    console.error('Search Console queries error:', error);
+    res.status(500).json({ error: 'Failed to fetch search queries', message: error.message });
+  }
+});
+
+// Get top pages from search
+app.get('/api/search-console/pages', async (req, res) => {
+  try {
+    const siteUrl = process.env.SEARCH_CONSOLE_SITE_URL;
+    const limit = parseInt(req.query.limit) || 10;
+    if (!siteUrl) {
+      return res.status(400).json({ error: 'SEARCH_CONSOLE_SITE_URL is not configured' });
+    }
+    const data = await searchConsoleService.getTopSearchPages(siteUrl, limit);
+    res.json(data);
+  } catch (error) {
+    console.error('Search Console pages error:', error);
+    res.status(500).json({ error: 'Failed to fetch search pages', message: error.message });
+  }
+});
+
+// ==========================================
+// PageSpeed Insights API Endpoints
+// ==========================================
+
+// Get PageSpeed score for a URL
+app.get('/api/pagespeed', async (req, res) => {
+  try {
+    const url = req.query.url || process.env.SEARCH_CONSOLE_SITE_URL;
+    const strategy = req.query.strategy || 'mobile';
+    if (!url) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+    const data = await pageSpeedService.getPageSpeedInsights(url, strategy);
+    res.json(data);
+  } catch (error) {
+    console.error('PageSpeed error:', error);
+    res.status(500).json({ error: 'Failed to fetch PageSpeed data', message: error.message });
+  }
+});
+
+// Get full PageSpeed report (mobile + desktop)
+app.get('/api/pagespeed/full', async (req, res) => {
+  try {
+    const url = req.query.url || process.env.SEARCH_CONSOLE_SITE_URL;
+    if (!url) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+    const data = await pageSpeedService.getFullPageSpeedReport(url);
+    res.json(data);
+  } catch (error) {
+    console.error('PageSpeed full report error:', error);
+    res.status(500).json({ error: 'Failed to fetch PageSpeed report', message: error.message });
+  }
+});
+
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Serve React app for all other routes (Express 5 compatible)
-app.get(/.*/, (req, res) => {
-  res.sendFile(join(__dirname, '../dist/index.html'));
+app.get(/.*/, (_req, res) => {
+  const indexPath = join(__dirname, '../dist/index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(404).json({ error: 'Frontend not built. Run npm run build first, or use Vite dev server on port 5173' });
+    }
+  });
 });
 
 // Start server - bind to 0.0.0.0 for Fly.io
