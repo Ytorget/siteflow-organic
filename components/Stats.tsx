@@ -7,8 +7,11 @@ const Stats: React.FC = () => {
   return (
     <section id="results" className="py-24 bg-slate-950 text-white border-t border-slate-900 relative overflow-hidden">
 
-      {/* Grid Background Texture */}
-      <div className="absolute inset-0 bg-[url('/ilustration/3.png')] bg-cover bg-center opacity-10 mix-blend-screen"></div>
+      {/* Grid Background Texture - CSS pattern instead of heavy image */}
+      <div className="absolute inset-0 opacity-10 mix-blend-screen" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+        backgroundSize: '24px 24px'
+      }}></div>
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-slate-900 via-slate-900/80 to-slate-900 opacity-80"></div>
 
       <div className="container mx-auto px-6 relative z-10">
