@@ -36,13 +36,8 @@ export default defineConfig(({ mode }) => {
             }
           }
         },
-        // Reduce bundle size
-        minify: 'terser',
-        terserOptions: {
-          compress: {
-            drop_console: true,
-          }
-        }
+        // Use esbuild for minification (built-in, faster)
+        minify: 'esbuild'
       }
     };
 });
