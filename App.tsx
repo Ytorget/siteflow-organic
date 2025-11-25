@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Navigation from './components/Navigation';
 import Hero from './components/Hero';
 import Process from './components/Process';
@@ -11,14 +11,21 @@ import FAQ from './components/FAQ';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
 
-// Pages
-import PhilosophyPage from './components/PhilosophyPage';
-import AudiencePage from './components/AudiencePage';
-import ResultsPage from './components/ResultsPage';
-import ContactPage from './components/ContactPage';
-import LoginPage from './components/LoginPage';
+// Lazy load pages that aren't shown on initial render
+const PhilosophyPage = lazy(() => import('./components/PhilosophyPage'));
+const AudiencePage = lazy(() => import('./components/AudiencePage'));
+const ResultsPage = lazy(() => import('./components/ResultsPage'));
+const ContactPage = lazy(() => import('./components/ContactPage'));
+const LoginPage = lazy(() => import('./components/LoginPage'));
 
 import { Page } from './types';
+
+// Simple loading fallback
+const PageLoader = () => (
+  <div className="min-h-[50vh] flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></div>
+  </div>
+);
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -60,15 +67,15 @@ const App: React.FC = () => {
           </>
         );
       case 'philosophy':
-        return <PhilosophyPage onNavigate={handleNavigate} />;
+        return <Suspense fallback={<PageLoader />}><PhilosophyPage onNavigate={handleNavigate} /></Suspense>;
       case 'audience':
-        return <AudiencePage onNavigate={handleNavigate} />;
+        return <Suspense fallback={<PageLoader />}><AudiencePage onNavigate={handleNavigate} /></Suspense>;
       case 'results':
-        return <ResultsPage onNavigate={handleNavigate} />;
+        return <Suspense fallback={<PageLoader />}><ResultsPage onNavigate={handleNavigate} /></Suspense>;
       case 'contact':
-        return <ContactPage />;
+        return <Suspense fallback={<PageLoader />}><ContactPage /></Suspense>;
       case 'login':
-        return <LoginPage />;
+        return <Suspense fallback={<PageLoader />}><LoginPage /></Suspense>;
       default:
         return <Hero onNavigate={handleNavigate} />;
     }
