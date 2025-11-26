@@ -23,6 +23,7 @@ const CaseStudiesPage = lazy(() => import('./components/CaseStudiesPage'));
 const CaseStudyPage = lazy(() => import('./components/CaseStudyPage'));
 const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./components/TermsOfServicePage'));
+const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 
 import { Page } from './types';
 
@@ -54,7 +55,8 @@ const App: React.FC = () => {
       caseStudies: 'Kundcase | Siteflow',
       caseStudy: 'Kundcase | Siteflow',
       privacy: 'Integritetspolicy | Siteflow',
-      terms: 'Användarvillkor | Siteflow'
+      terms: 'Användarvillkor | Siteflow',
+      notFound: '404 - Sidan hittades inte | Siteflow'
     };
 
     document.title = titles[currentPage] || 'Siteflow';
@@ -132,6 +134,8 @@ const App: React.FC = () => {
         return <Suspense fallback={<PageLoader />}><PrivacyPolicyPage onNavigate={handleNavigate} /></Suspense>;
       case 'terms':
         return <Suspense fallback={<PageLoader />}><TermsOfServicePage onNavigate={handleNavigate} /></Suspense>;
+      case 'notFound':
+        return <Suspense fallback={<PageLoader />}><NotFoundPage setCurrentPage={handleNavigate} /></Suspense>;
       default:
         return <Hero onNavigate={handleNavigate} />;
     }
