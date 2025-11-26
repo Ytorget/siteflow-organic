@@ -35,3 +35,20 @@ siteflow-*.json
 *.njsproj
 *.sln
 *.sw?
+
+/src/generated/prisma
+
+# Elixir/Phoenix backend
+backend/_build/
+backend/deps/
+backend/.elixir_ls/
+backend/*.ez
+backend/erl_crash.dump
+backend/.fetch
+backend/priv/static/
+
+# Windows artifacts
+nul
+
+# Claude local settings
+.claude/settings.local.json
