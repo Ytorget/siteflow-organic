@@ -76,7 +76,10 @@ defmodule Backend.MixProject do
       # RAG/AI System
       {:pgvector, "~> 0.3"},  # Vector embeddings in PostgreSQL
       {:oban, "~> 2.18"},     # Background job processing
-      {:req, "~> 0.5"}        # HTTP client for Gemini API
+      {:req, "~> 0.5"},       # HTTP client for Gemini API
+
+      # Tidewave MCP Server for AI integration
+      {:tidewave, "~> 0.5", only: :dev}
     ]
   end
 

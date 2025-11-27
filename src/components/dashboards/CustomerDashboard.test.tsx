@@ -67,14 +67,23 @@ vi.mock('../../../components/dashboards/StatsCard', () => ({
   ),
 }));
 
-// Mock ProjectTimeline
-vi.mock('../../../components/timeline/ProjectTimeline', () => ({
-  default: () => <div data-testid="project-timeline">Project Timeline</div>,
+// Mock ProjectSelector
+vi.mock('../../../components/shared/ProjectSelector', () => ({
+  default: ({ value, onChange }: any) => (
+    <div data-testid="project-selector">
+      <button onClick={() => onChange('project-1')}>Select Project</button>
+      {value && <span data-testid="selected-project">{value}</span>}
+    </div>
+  ),
 }));
 
-// Mock ProjectMeetings
-vi.mock('../../../components/meetings/ProjectMeetings', () => ({
-  default: () => <div data-testid="project-meetings">Project Meetings</div>,
+// Mock ProjectOverview
+vi.mock('../../../components/ProjectOverview', () => ({
+  default: ({ projectId, canEdit }: any) => (
+    <div data-testid="project-overview" data-project-id={projectId} data-can-edit={canEdit}>
+      Project Overview for {projectId}
+    </div>
+  ),
 }));
 
 const createWrapper = () => {
@@ -509,6 +518,174 @@ describe('CustomerDashboard', () => {
       expect(screen.getByText('Project 0')).toBeInTheDocument();
       expect(screen.getByText('Project 4')).toBeInTheDocument();
       expect(screen.queryByText('Project 5')).not.toBeInTheDocument();
+    });
+  });
+
+  // Integration tests for ProjectSelector and ProjectOverview
+  describe('ProjectSelector and ProjectOverview integration', () => {
+    it('should render ProjectSelector when there are projects', async () => {
+      const projects = [
+        { id: 'project-1', name: 'Test Project', state: 'in_progress', companyId: 'company-1' },
+      ];
+
+      mockUseProjects.mockReturnValue({
+        data: projects,
+        isLoading: false,
+        error: null,
+      });
+      mockUseTickets.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      });
+
+      render(<CustomerDashboard />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('project-selector')).toBeInTheDocument();
+      });
+    });
+
+    it('should not render ProjectSelector when there are no projects', async () => {
+      mockUseProjects.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      });
+      mockUseTickets.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      });
+
+      render(<CustomerDashboard />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('project-selector')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show placeholder text when no project is selected', async () => {
+      const projects = [
+        { id: 'project-1', name: 'Test Project', state: 'in_progress', companyId: 'company-1' },
+      ];
+
+      mockUseProjects.mockReturnValue({
+        data: projects,
+        isLoading: false,
+        error: null,
+      });
+      mockUseTickets.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      });
+
+      render(<CustomerDashboard />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getByText('projectOverview.noSelection')).toBeInTheDocument();
+        expect(screen.queryByTestId('project-overview')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should render ProjectOverview when a project is selected', async () => {
+      const user = userEvent.setup();
+      const projects = [
+        { id: 'project-1', name: 'Test Project', state: 'in_progress', companyId: 'company-1' },
+      ];
+
+      mockUseProjects.mockReturnValue({
+        data: projects,
+        isLoading: false,
+        error: null,
+      });
+      mockUseTickets.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      });
+
+      render(<CustomerDashboard />, { wrapper: createWrapper() });
+
+      // Select a project
+      await waitFor(() => {
+        expect(screen.getByTestId('project-selector')).toBeInTheDocument();
+      });
+      await user.click(screen.getByText('Select Project'));
+
+      // Verify ProjectOverview is rendered with correct project ID
+      await waitFor(() => {
+        const projectOverview = screen.getByTestId('project-overview');
+        expect(projectOverview).toBeInTheDocument();
+        expect(projectOverview).toHaveAttribute('data-project-id', 'project-1');
+      });
+    });
+
+    it('should pass canEdit={false} to ProjectOverview for customer users', async () => {
+      const user = userEvent.setup();
+      const projects = [
+        { id: 'project-1', name: 'Test Project', state: 'in_progress', companyId: 'company-1' },
+      ];
+
+      mockUseProjects.mockReturnValue({
+        data: projects,
+        isLoading: false,
+        error: null,
+      });
+      mockUseTickets.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      });
+
+      render(<CustomerDashboard />, { wrapper: createWrapper() });
+
+      // Select a project
+      await waitFor(() => {
+        expect(screen.getByTestId('project-selector')).toBeInTheDocument();
+      });
+      await user.click(screen.getByText('Select Project'));
+
+      // Verify canEdit prop is false
+      await waitFor(() => {
+        const projectOverview = screen.getByTestId('project-overview');
+        expect(projectOverview).toHaveAttribute('data-can-edit', 'false');
+      });
+    });
+
+    it('should hide placeholder and show ProjectOverview after selection', async () => {
+      const user = userEvent.setup();
+      const projects = [
+        { id: 'project-1', name: 'Test Project', state: 'in_progress', companyId: 'company-1' },
+      ];
+
+      mockUseProjects.mockReturnValue({
+        data: projects,
+        isLoading: false,
+        error: null,
+      });
+      mockUseTickets.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      });
+
+      render(<CustomerDashboard />, { wrapper: createWrapper() });
+
+      // Initially show placeholder
+      await waitFor(() => {
+        expect(screen.getByText('projectOverview.noSelection')).toBeInTheDocument();
+      });
+
+      // Select a project
+      await user.click(screen.getByText('Select Project'));
+
+      // Placeholder should be hidden, ProjectOverview should be visible
+      await waitFor(() => {
+        expect(screen.queryByText('projectOverview.noSelection')).not.toBeInTheDocument();
+        expect(screen.getByTestId('project-overview')).toBeInTheDocument();
+      });
     });
   });
 });

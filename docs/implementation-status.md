@@ -127,11 +127,11 @@ Denna fil jämför [customer-portal-spec.md](customer-portal-spec.md) mot den nu
 #### ✅ Dashboards (Rollbaserade)
 - [x] DashboardLayout.tsx (huvudlayout med navigation)
 - [x] DashboardPage.tsx (router baserat på user role)
-- [x] AdminDashboard.tsx - Full systemöversikt
-- [x] CustomerDashboard.tsx - Kundens projektsida
+- [x] AdminDashboard.tsx - Full systemöversikt med ProjectSelector och ProjectOverview (2025-11-27)
+- [x] CustomerDashboard.tsx - Kundens projektsida med ProjectSelector och ProjectOverview (2025-11-27)
 - [x] DeveloperDashboard.tsx - Utvecklarens tickets och tidsrapportering
 - [x] KAMDashboard.tsx - Key Account Manager-vy
-- [x] ProjectLeaderDashboard.tsx - Projektledarvy
+- [x] ProjectLeaderDashboard.tsx - Projektledarvy med ProjectSelector och ProjectOverview (2025-11-27)
 - [x] TimeTrackingDashboard.tsx - Tidsrapporteringsvy
 
 #### ✅ Formulär
@@ -146,6 +146,8 @@ Denna fil jämför [customer-portal-spec.md](customer-portal-spec.md) mot den nu
 #### ✅ Shared Components
 - [x] Modal.tsx - Återanvändbar modal-komponent
 - [x] DocumentList.tsx - Lista och hantera dokument
+- [x] ProjectSelector.tsx - Projektväljare med dropdown, localStorage, och i18n (2025-11-27)
+- [x] ProjectOverview.tsx - Tab-baserad vy för Timeline och Möten (2025-11-27)
 
 #### ✅ Form Schema & Configuration
 - [x] src/config/formSchema.ts - TypeScript types och scheman för formulär
@@ -524,9 +526,11 @@ ProductPlan:
 - [x] Vitest setup med React Testing Library
 - [x] Test-filer för komponenter (AdminDashboard.test.tsx, LoginPage.test.tsx, etc.)
 - [x] Mock Service Worker (MSW) för API-mocking
-- [x] **222 tester passerar** (16 test-filer)
+- [x] **330 tester passerar** (22 test-filer) - Uppdaterat 2025-11-27
 - [x] Tester för DynamicProjectForm och formSchema
 - [x] Tester för alla formulärkomponenter
+- [x] Tester för ProjectSelector och ProjectOverview (2025-11-27)
+- [x] Integration tests för dashboards med ProjectSelector/ProjectOverview (2025-11-27)
 
 **Spec nämnde inte testing explicit.**
 
@@ -690,12 +694,20 @@ För att uppnå **MVP enligt spec**, fokusera på:
 - ✅ ProjectTimeline.tsx - Visuell timeline med milstolpar och progress tracking
 - ✅ Meeting-resurs + hooks (backend + API integration)
 - ✅ ProjectMeetings.tsx - Google Calendar-liknande månadsvy med färgkodning
+- ✅ **Dashboard Integration (2025-11-27):**
+  - ✅ ProjectSelector.tsx - Projektväljare med dropdown, localStorage-persistering, och i18n-stöd
+  - ✅ ProjectOverview.tsx - Tab-baserad container för Timeline och Möten
+  - ✅ Integration i CustomerDashboard, AdminDashboard, och ProjectLeaderDashboard
+  - ✅ Component tests: ProjectSelector.test.tsx (13 test cases)
+  - ✅ Component tests: ProjectOverview.test.tsx (11 test cases)
+  - ✅ Integration tests: Uppdaterade CustomerDashboard.test.tsx med 6 nya test cases
+  - ✅ Uppdaterade i18n-filer (locales/sv.json och locales/en.json)
+  - ✅ **330 tester passerar (100% pass rate)**
 
 **Nästa prioritet:**
 - **[ARIAN]** Email-integration för notifikationer och kommunikation (kritiskt för MVP)
 - **[ARIAN]** Updates/Feed-system för projektuppdateringar
 - Filuppladdning till S3/storage
-- Projektväljare i dashboards (för att visa timeline/möten för valfritt projekt)
 
 Nuvarande implementation har **mycket stark grund** - alla kritiska MVP-system är implementerade både backend och frontend!
 
@@ -761,12 +773,13 @@ Arian ansvarar för hela notifikations- och event-systemet med följande feature
 ---
 
 **Sammanfattning:**
-- ✅ **KLART:** Backend-resurser, rollsystem, dashboards, formulär-komponenter, **dynamiska projektformulär**, **admin filhantering**, **interna anteckningar**, **prioritets-toggle**, **onboarding UI**, **produktplan UI**, **RAG chat UI**, **timeline/milestones**, **möten/kalender**
+- ✅ **KLART:** Backend-resurser, rollsystem, dashboards, formulär-komponenter, **dynamiska projektformulär**, **admin filhantering**, **interna anteckningar**, **prioritets-toggle**, **onboarding UI**, **produktplan UI**, **RAG chat UI**, **timeline/milestones**, **möten/kalender**, **dashboard integration med projektväljare**
 - ✅ **Nytt (2025-11-27):**
-  - Frontend: OnboardingPage.tsx, ProductPlanManagement + CustomerView, RAGChatPanel + GeneratedDocuments, ProjectTimeline, ProjectMeetings
+  - Frontend: OnboardingPage.tsx, ProductPlanManagement + CustomerView, RAGChatPanel + GeneratedDocuments, ProjectTimeline, ProjectMeetings, **ProjectSelector + ProjectOverview**
   - Backend: RAGController med SSE streaming, Meeting-resurs, Milestone-resurs
   - Integration: 30 nya hooks i useApi.ts (23 för RAG/ProductPlan/Timeline, 7 för Meetings), useRAGChat custom hook
-  - Dashboards: ProjectMeetings + ProjectTimeline integrerade i CustomerDashboard och AdminDashboard
+  - Dashboards: ProjectMeetings + ProjectTimeline integrerade via ProjectSelector och ProjectOverview i CustomerDashboard, AdminDashboard, och ProjectLeaderDashboard
+  - Testing: **330 tester passerar (100%)** - 24 nya test cases för ProjectSelector, ProjectOverview, och dashboard integration
 - ❌ **Saknas:** Email-integration, updates/feed-system, filuppladdning till S3
 - 🔔 **Arian:** Hela notifikations- och event-systemet (email, in-app, real-time, multi-transport)
 

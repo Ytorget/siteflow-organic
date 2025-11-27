@@ -62,5 +62,10 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
+# Phoenix LiveView settings for Tidewave integration
+config :phoenix_live_view,
+  debug_heex_annotations: true,
+  debug_attributes: true
+
 # Ash development settings
 config :ash, :disable_async?, true

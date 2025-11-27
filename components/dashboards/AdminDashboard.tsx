@@ -20,13 +20,14 @@ import CreateProjectForm from '../forms/CreateProjectForm';
 import InviteUserForm from '../forms/InviteUserForm';
 import AdminFormResponseView from '../admin/AdminFormResponseView';
 import AdminFileBrowser from '../admin/AdminFileBrowser';
-import ProjectTimeline from '../timeline/ProjectTimeline';
-import ProjectMeetings from '../meetings/ProjectMeetings';
+import ProjectSelector from '../shared/ProjectSelector';
+import ProjectOverview from '../ProjectOverview';
 
 const AdminDashboard: React.FC = () => {
   const { t } = useTranslation();
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const [isInviteUserModalOpen, setIsInviteUserModalOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   // Use RPC hooks for data fetching
   const { data: companies = [], isLoading: companiesLoading, error: companiesError } = useCompanies();
@@ -246,20 +247,35 @@ const AdminDashboard: React.FC = () => {
       {/* File Browser - Admin view */}
       <AdminFileBrowser />
 
-      {/* Project Timeline & Meetings - Show for first project if exists */}
-      {projects.length > 0 && (
-        <>
-          {/* Timeline */}
-          <div className="mt-8">
-            <ProjectTimeline projectId={projects[0].id} canEdit={true} />
+      {/* Project Selector and Overview */}
+      {projects.length > 0 ? (
+        <div className="space-y-4">
+          {/* Project Selector */}
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 mb-3">
+              {t('projectOverview.title', 'Projektöversikt')}
+            </h3>
+            <ProjectSelector
+              value={selectedProjectId}
+              onChange={setSelectedProjectId}
+              className="max-w-md"
+            />
           </div>
 
-          {/* Meetings */}
-          <div className="mt-8">
-            <ProjectMeetings projectId={projects[0].id} canEdit={true} />
-          </div>
-        </>
-      )}
+          {/* Project Overview with Timeline and Meetings */}
+          {selectedProjectId ? (
+            <ProjectOverview
+              projectId={selectedProjectId}
+              canEdit={true}
+            />
+          ) : (
+            <div className="bg-white rounded-lg border border-slate-200 p-8 text-center text-slate-500">
+              <FolderKanban className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+              <p>{t('projectOverview.noSelection', 'Välj ett projekt för att se tidslinje och möten')}</p>
+            </div>
+          )}
+        </div>
+      ) : null}
 
       {/* Create Project Modal */}
       <Modal
