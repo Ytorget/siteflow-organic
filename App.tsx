@@ -25,6 +25,7 @@ const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./components/TermsOfServicePage'));
 const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 const DashboardPage = lazy(() => import('./components/DashboardPage'));
+const OnboardingPage = lazy(() => import('./components/OnboardingPage'));
 
 import { Page } from './types';
 
@@ -39,6 +40,17 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string | null>(null);
   const [currentCaseStudySlug, setCurrentCaseStudySlug] = useState<string | null>(null);
+  const [onboardingToken, setOnboardingToken] = useState<string | null>(null);
+
+  // Check for onboarding token in URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      setOnboardingToken(token);
+      setCurrentPage('onboarding');
+    }
+  }, []);
 
   // Handle side effects of navigation (SEO Title + Scroll)
   useEffect(() => {
@@ -58,7 +70,8 @@ const App: React.FC = () => {
       privacy: 'Integritetspolicy | Siteflow',
       terms: 'Användarvillkor | Siteflow',
       notFound: '404 - Sidan hittades inte | Siteflow',
-      dashboard: 'Dashboard | Siteflow'
+      dashboard: 'Dashboard | Siteflow',
+      onboarding: 'Registrering | Siteflow'
     };
 
     document.title = titles[currentPage] || 'Siteflow';
@@ -146,15 +159,17 @@ const App: React.FC = () => {
         return <Suspense fallback={<PageLoader />}><NotFoundPage setCurrentPage={handleNavigate} /></Suspense>;
       case 'dashboard':
         return <Suspense fallback={<PageLoader />}><DashboardPage onNavigate={handleNavigate} onLogout={handleLogout} /></Suspense>;
+      case 'onboarding':
+        return <Suspense fallback={<PageLoader />}><OnboardingPage onNavigate={handleNavigate} token={onboardingToken || undefined} /></Suspense>;
       default:
         return <Hero onNavigate={handleNavigate} />;
     }
   };
 
-  // Dashboard has its own layout, so we don't show the main navigation/footer
-  const isDashboard = currentPage === 'dashboard';
+  // Dashboard and onboarding have their own layouts, so we don't show the main navigation/footer
+  const hasCustomLayout = currentPage === 'dashboard' || currentPage === 'onboarding';
 
-  if (isDashboard) {
+  if (hasCustomLayout) {
     return renderPage();
   }
 

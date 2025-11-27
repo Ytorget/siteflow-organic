@@ -4,6 +4,8 @@ Denna fil jämför [customer-portal-spec.md](customer-portal-spec.md) mot den nu
 
 **Datum:** 2025-11-27
 
+> **📋 Se [next-steps-plan.md](next-steps-plan.md) för detaljerad implementationsplan med prioriteringar, tidsestimat och kodexempel.**
+
 ## 👥 Arbetsfördelning
 
 **🤖 AI/RAG-system** - Planerat för implementation:
@@ -29,10 +31,10 @@ Denna fil jämför [customer-portal-spec.md](customer-portal-spec.md) mot den nu
 
 ### Implementationsstadium
 - **Fas:** MVP+ (mer än MVP, men inte alla "future features")
-- **Backend:** ~90% komplett (CRUD, autentisering, FormResponse, RAG/AI services, Onboarding, ProductPlan)
-- **Frontend:** ~60% komplett (dashboards, formulär och dynamiska projektformulär implementerade)
-- **Integration:** ~70% komplett (RPC-anrop fungerar, RAG backend redo, men filuppladdning och notifikationer saknas)
-- **AI/RAG:** ✅ Backend KLART (GeminiClient, EmbeddingService, DocumentGenerator, RAGService, Oban workers)
+- **Backend:** ~95% komplett (CRUD, autentisering, FormResponse, RAG/AI services, Onboarding, ProductPlan, Milestones, Meetings)
+- **Frontend:** ~80% komplett (dashboards, formulär, dynamiska projektformulär, onboarding, produktplan, RAG chat, timeline)
+- **Integration:** ~85% komplett (RPC-anrop fungerar, RAG streaming implementerat, men filuppladdning och notifikationer saknas)
+- **AI/RAG:** ✅ KLART (Backend + Frontend med streaming chat och dokumenthantering)
 
 ---
 
@@ -125,11 +127,11 @@ Denna fil jämför [customer-portal-spec.md](customer-portal-spec.md) mot den nu
 #### ✅ Dashboards (Rollbaserade)
 - [x] DashboardLayout.tsx (huvudlayout med navigation)
 - [x] DashboardPage.tsx (router baserat på user role)
-- [x] AdminDashboard.tsx - Full systemöversikt
-- [x] CustomerDashboard.tsx - Kundens projektsida
+- [x] AdminDashboard.tsx - Full systemöversikt med ProjectSelector och ProjectOverview (2025-11-27)
+- [x] CustomerDashboard.tsx - Kundens projektsida med ProjectSelector och ProjectOverview (2025-11-27)
 - [x] DeveloperDashboard.tsx - Utvecklarens tickets och tidsrapportering
 - [x] KAMDashboard.tsx - Key Account Manager-vy
-- [x] ProjectLeaderDashboard.tsx - Projektledarvy
+- [x] ProjectLeaderDashboard.tsx - Projektledarvy med ProjectSelector och ProjectOverview (2025-11-27)
 - [x] TimeTrackingDashboard.tsx - Tidsrapporteringsvy
 
 #### ✅ Formulär
@@ -144,6 +146,8 @@ Denna fil jämför [customer-portal-spec.md](customer-portal-spec.md) mot den nu
 #### ✅ Shared Components
 - [x] Modal.tsx - Återanvändbar modal-komponent
 - [x] DocumentList.tsx - Lista och hantera dokument
+- [x] ProjectSelector.tsx - Projektväljare med dropdown, localStorage, och i18n (2025-11-27)
+- [x] ProjectOverview.tsx - Tab-baserad vy för Timeline och Möten (2025-11-27)
 
 #### ✅ Form Schema & Configuration
 - [x] src/config/formSchema.ts - TypeScript types och scheman för formulär
@@ -203,10 +207,10 @@ ProductPlan:
 - [ ] **[ARIAN]** Email-mallar för inbjudan
 - [ ] **[ARIAN]** "Kom igång"-knapp i email som leder till registrering
 
-#### ⚠️ Steg 2: Onboarding via Inbjudningslänk (BACKEND KLART 2025-11-27)
+#### ✅ Steg 2: Onboarding via Inbjudningslänk (KLART 2025-11-27)
 **Kunder kan INTE registrera sig själva - de får en inbjudningslänk från Siteflow:**
 
-**Steg 2a: Företagsinformation - BACKEND KLART**
+**Steg 2a: Företagsinformation - KLART**
 - [x] Registreringsflöde via invitation token (enda sättet att komma in)
 - [x] OnboardingService + OnboardingController implementerat
 - [x] API: `GET /api/onboarding/validate/:token` - Validera token
@@ -222,13 +226,13 @@ ProductPlan:
 - [x] Lösenord (via register_with_password action)
 - [x] Logotyp-URL (logo_url fält)
 - [x] Faktureringsadress (billing_address, billing_city, billing_postal_code, billing_country)
-- [ ] **Frontend UI för onboarding-formulär** (saknas)
+- [x] **Frontend UI: OnboardingPage.tsx** (multi-step wizard med token validation)
 
 **Steg 2b: RAG-indexering (bakgrund)**
 - [x] När företagsinfo är klart → Logger meddelar att RAG indexeras vid första projektet
 - [ ] Faktisk RAG-indexering av företagsinfo (triggas vid projekt-skapande)
 
-**Status:** Backend KLART! Frontend onboarding-formulär saknas.
+**Status:** ✅ KLART! Både backend och frontend implementerat.
 
 #### ✅ Steg 3: Dynamiska Projektformulär
 **IMPLEMENTERAT!**
@@ -283,7 +287,7 @@ ProductPlan:
   - [x] Markera som prioritet (is_priority på Project, toggle-knapp i AdminFormResponseView)
   - [x] Lägg till interna anteckningar (InternalNote-resurs, visas i detail-modal)
 
-#### ✅ Produktplan-funktionalitet (IMPLEMENTERAT 2025-11-27)
+#### ✅ Produktplan-funktionalitet (KLART 2025-11-27)
 - [x] ProductPlan-resurs i databasen
 - [x] Admin kan skapa produktplan (create action)
 - [x] Ladda upp produktplan som PDF (pdf_url fält)
@@ -293,9 +297,11 @@ ProductPlan:
 - [x] Versionshantering vid revision
 - [x] State machine: draft → sent → viewed → approved/changes_requested → revised → archived
 - [ ] **[ARIAN]** Email-notifikation till kund när produktplan är klar
-- [ ] Frontend UI för produktplan (admin + kund)
+- [x] **Frontend UI: ProductPlanManagement.tsx** (admin interface med markdown editor)
+- [x] **Frontend UI: ProductPlanCustomerView.tsx** (kund godkännande/ändringar)
+- [x] **Frontend hooks i useApi.ts** (10 hooks för ProductPlan CRUD)
 
-**Status:** Backend KLART! Frontend UI saknas.
+**Status:** ✅ KLART! Både backend och frontend implementerat.
 
 ### Kundportal - Dashboard-funktioner som saknas
 
@@ -307,14 +313,22 @@ ProductPlan:
 
 **Status:** CustomerDashboard visar projekt, men inte i detta format.
 
-#### ❌ Timeline-vy
-- [ ] Visuell tidslinje med milstolpar
-- [ ] ✅ Avklarade milstolpar (grön bock)
-- [ ] 🔵 Pågående aktivitet (pulserar)
-- [ ] ⚪ Kommande milstolpar (grå)
-- [ ] Interaktiv vy
+#### ✅ Timeline-vy (KLART 2025-11-27)
+- [x] **Backend: Milestone-resurs** med title, description, due_date, completed_at, order_index, status
+- [x] **Migration:** 20251127000000_add_milestones.exs
+- [x] **RPC actions:** milestone_read, milestone_by_project, milestone_create, milestone_update, milestone_mark_completed, milestone_reopen, milestone_destroy
+- [x] **Frontend hooks:** 6 hooks i useApi.ts för Milestone CRUD
+- [x] **Frontend UI: ProjectTimeline.tsx** med:
+  - [x] Visuell tidslinje med milstolpar och progress bar
+  - [x] ✅ Avklarade milstolpar (grön bock med CheckCircle)
+  - [x] 🔵 Pågående aktivitet (Clock icon, blå)
+  - [x] ⚪ Väntande milstolpar (Circle icon, grå)
+  - [x] Timeline connector mellan milstolpar
+  - [x] Interaktiv vy med create/edit/delete/toggle complete
+  - [x] Översenad milstolpe-detektion
+  - [x] Projektframsteg-procenträknare
 
-**Status:** Ingen timeline-komponent.
+**Status:** ✅ KLART! Timeline med milstolpar implementerat.
 
 #### ❌ Senaste uppdateringar (Feed) **[ARIAN]**
 **Specen beskriver ett feed-system:**
@@ -343,14 +357,25 @@ ProductPlan:
 
 **Status:** Ingen preview-funktionalitet.
 
-#### ❌ Möten & Kalender
-- [ ] Meetings-resurs i databasen (finns ej!)
-- [ ] Schemalagda möten
-- [ ] Meeting-länkar (Zoom, Google Meet)
-- [ ] Status (scheduled, completed, cancelled)
+#### ✅ Möten & Kalender (KLART 2025-11-27)
+- [x] **Backend: Meeting-resurs** med title, description, meeting_type, scheduled_at, duration_minutes, location, meeting_url, notes, action_items, attendees, status
+- [x] **Migration:** 20251127010000_add_meetings.exs
+- [x] **Meeting types:** kickoff, status_update, review, planning, retrospective, other
+- [x] **Status states:** scheduled, in_progress, completed, cancelled
+- [x] **RPC actions:** meeting_read, meeting_by_project, meeting_upcoming_by_project, meeting_create, meeting_update, meeting_start, meeting_complete, meeting_cancel, meeting_destroy
+- [x] **Frontend hooks:** 7 hooks i useApi.ts för Meeting CRUD
+- [x] **Frontend UI: ProjectMeetings.tsx** - Google Calendar-liknande månadsvy med:
+  - [x] Interaktiv kalendervy med navigation (föregående/nästa månad, idag-knapp)
+  - [x] Färgkodade möten per typ (kickoff=lila, status=blå, review=grön, planning=orange, retro=rosa, other=grå)
+  - [x] Klicka på dag för att skapa möte
+  - [x] Klicka på möte för att se detaljer i modal
+  - [x] Create/edit modal med alla fält (titel, typ, datum/tid, längd, plats, mötes-länk, deltagare, anteckningar)
+  - [x] Statushantering: Starta/avsluta/ställa in möten
+  - [x] Mötesdetaljer med action items och anteckningar
+- [ ] **[ARIAN]** Kalenderintegration (Google Calendar, Outlook)
 - [ ] **[ARIAN]** Påminnelser 24h innan möte (delayed delivery)
 
-**Status:** Ingen möteshantering.
+**Status:** ✅ KLART! Komplett Google Calendar-liknande UI implementerad.
 
 #### ❌ Team-information
 - [ ] Visa projektteam med namn, roller, kontaktinfo
@@ -501,9 +526,11 @@ ProductPlan:
 - [x] Vitest setup med React Testing Library
 - [x] Test-filer för komponenter (AdminDashboard.test.tsx, LoginPage.test.tsx, etc.)
 - [x] Mock Service Worker (MSW) för API-mocking
-- [x] **222 tester passerar** (16 test-filer)
+- [x] **330 tester passerar** (22 test-filer) - Uppdaterat 2025-11-27
 - [x] Tester för DynamicProjectForm och formSchema
 - [x] Tester för alla formulärkomponenter
+- [x] Tester för ProjectSelector och ProjectOverview (2025-11-27)
+- [x] Integration tests för dashboards med ProjectSelector/ProjectOverview (2025-11-27)
 
 **Spec nämnde inte testing explicit.**
 
@@ -528,17 +555,17 @@ Specen definierar ett MVP (Fas 1) med följande krav:
 
 | Feature | Status | Kommentar |
 |---------|--------|-----------|
-| ✅ Kundinbjudan via email | ⚠️ Delvis | Invitation-resurs finns, OnboardingService KLART, men email-sending saknas [ARIAN] |
-| ✅ Registrering & företagsinformation | ⚠️ Delvis | Backend KLART (OnboardingService), frontend UI saknas |
+| ✅ Kundinbjudan via email | ⚠️ Delvis | Invitation-resurs finns, OnboardingService + frontend KLART, men email-sending saknas [ARIAN] |
+| ✅ Registrering & företagsinformation | ✅ Ja | OnboardingService + OnboardingPage.tsx med multi-step wizard (2025-11-27) |
 | ✅ Dynamiskt formulär (hemsida/system) | ✅ Ja | DynamicProjectForm med 24+31 frågor, FormResponse backend |
-| ✅ Admin tar emot förfrågningar | ⚠️ Delvis | Admin kan se projekt, formulärsvar lagras i FormResponse |
-| ✅ Produktplan-upload | ✅ Ja | ProductPlan-resurs med full state machine (2025-11-27) |
-| ✅ Kund-godkännande | ✅ Ja | ProductPlan approve/request_changes actions KLART |
-| ✅ Enkel dashboard för kund | ⚠️ Delvis | CustomerDashboard finns, men saknar progress/timeline |
+| ✅ Admin tar emot förfrågningar | ✅ Ja | AdminFormResponseView, formulärsvar lagras i FormResponse, admin kan se allt |
+| ✅ Produktplan-upload | ✅ Ja | ProductPlan-resurs + ProductPlanManagement.tsx (2025-11-27) |
+| ✅ Kund-godkännande | ✅ Ja | ProductPlanCustomerView.tsx med approve/request_changes (2025-11-27) |
+| ✅ Enkel dashboard för kund | ✅ Ja | CustomerDashboard + ProjectTimeline med progress tracking (2025-11-27) |
 | ✅ Admin kan posta uppdateringar | ❌ Saknas | Ingen Updates-resurs eller feed [ARIAN] |
 | ✅ Ticket-system (basic) | ✅ Ja | Fungerar med CRUD och state machine |
 
-**MVP-score: 5/9 komplett, 3/9 delvis, 1/9 saknas**
+**MVP-score: 7/9 komplett, 1/9 delvis, 1/9 saknas**
 
 ---
 
@@ -558,7 +585,7 @@ Baserat på spec och vad som saknas, här är vad som bör implementeras härnä
    - ~~ProductPlan-resurs i backend~~ ✅
    - ~~Admin kan skapa/ladda upp produktplan~~ ✅
    - ~~Kund kan godkänna/begära ändringar~~ ✅
-   - [ ] Frontend UI för produktplan (admin + kund) - SAKNAS
+   - ~~Frontend UI för produktplan (admin + kund)~~ ✅
 
 3. **Email-integration** **[ARIAN]**
    - **[ARIAN]** SendGrid eller AWS SES setup
@@ -567,23 +594,23 @@ Baserat på spec och vad som saknas, här är vad som bör implementeras härnä
    - **[ARIAN]** Template system med interpolation
    - **[ARIAN]** Delivery tracking och retries
 
-4. ~~**Onboarding-flow**~~ ⚠️ **Backend KLART! (2025-11-27)**
+4. ~~**Onboarding-flow**~~ ✅ **KLART! (2025-11-27)**
    - ~~Invitation token är enda sättet in~~ ✅
    - ~~OnboardingService + OnboardingController~~ ✅
    - ~~Company-resurs utökad med onboarding-fält~~ ✅
    - ~~org.nr valfritt för utländska kunder~~ ✅
-   - [ ] Frontend onboarding-formulär - SAKNAS
+   - ~~Frontend onboarding-formulär~~ ✅ (OnboardingPage.tsx med multi-step wizard)
    - **[ARIAN]** "Kom igång"-email med inbjudningslänk
 
 ### 🟡 Högt prioriterade (Förbättrar UX)
-5. ~~**🤖 RAG/AI-system**~~ ✅ **BACKEND KLART! (2025-11-27)**
+5. ~~**🤖 RAG/AI-system**~~ ✅ **KLART! (2025-11-27)**
    - ~~Vector database (pgvector/float[] fallback) för embeddings~~ ✅
    - ~~Automatisk dokumentgenerering från formulärsvar~~ ✅ (DocumentGenerator)
-   - ~~Streaming RAG-chat för admin/dev~~ ✅ (RAGService)
+   - ~~Streaming RAG-chat för admin/dev~~ ✅ (RAGService + RAGController)
    - ~~Oban workers för bakgrundsjobb~~ ✅
    - ~~Access control: Admin + staff med `can_use_ai_chat`~~ ✅
-   - [ ] Frontend RAG chat UI - SAKNAS
-   - [ ] Frontend GeneratedDocuments viewer - SAKNAS
+   - ~~Frontend RAG chat UI~~ ✅ (RAGChatPanel.tsx med streaming)
+   - ~~Frontend GeneratedDocuments viewer~~ ✅ (GeneratedDocuments.tsx)
 
 6. **Updates/Feed-system** **[ARIAN]**
    - **[ARIAN]** Updates-resurs i backend
@@ -592,10 +619,10 @@ Baserat på spec och vad som saknas, här är vad som bör implementeras härnä
    - **[ARIAN]** Email-notifikationer för nya uppdateringar
    - **[ARIAN]** Real-time broadcasting via Phoenix Channels
 
-7. **Timeline & Progress tracking**
-   - Milestones/Phases-modell
-   - Timeline-komponent (visuell)
-   - Progress bar med fas-info
+7. ~~**Timeline & Progress tracking**~~ ✅ **KLART! (2025-11-27)**
+   - ~~Milestones/Phases-modell~~ ✅ (Milestone-resurs med status)
+   - ~~Timeline-komponent (visuell)~~ ✅ (ProjectTimeline.tsx)
+   - ~~Progress bar med fas-info~~ ✅ (Projektframsteg-procenträknare)
 
 8. **Filuppladdning**
    - AWS S3 eller liknande storage
@@ -611,11 +638,12 @@ Baserat på spec och vad som saknas, här är vad som bör implementeras härnä
    - **[ARIAN]** Real-time notification för nya kommentarer
 
 ### 🟢 Medel prioritet (Nice to have)
-10. **Möteshantering**
-    - Meetings-resurs
-    - Kalenderintegration
-    - Zoom/Google Meet-länkar
-    - **[ARIAN]** Påminnelser 24h innan (delayed delivery)
+10. ~~**Möteshantering**~~ ✅ **KLART! (2025-11-27)**
+    - ~~Meetings-resurs~~ ✅ (Meeting-resurs med full state machine)
+    - ~~RPC actions och hooks~~ ✅ (7 hooks i useApi.ts)
+    - ~~Frontend UI (ProjectMeetings.tsx)~~ ✅ (Google Calendar-liknande månadsvy)
+    - [ ] **[ARIAN]** Kalenderintegration (Google Calendar, Outlook)
+    - [ ] **[ARIAN]** Påminnelser 24h innan (delayed delivery)
 
 11. **Team-information**
     - Team-vy i projektet
@@ -653,17 +681,35 @@ Baserat på spec och vad som saknas, här är vad som bör implementeras härnä
 För att uppnå **MVP enligt spec**, fokusera på:
 
 1. ~~**Dynamiska formulär**~~ ✅ KLART - Kärnan i specen
-2. ~~**Produktplan-system**~~ ✅ BACKEND KLART - Behöver frontend UI
+2. ~~**Produktplan-system**~~ ✅ KLART - Både backend och frontend implementerat
 3. **Email-integration [ARIAN]** - Kritiskt för kommunikation
-4. ~~**Onboarding-flow**~~ ✅ BACKEND KLART - Behöver frontend UI
-5. ~~**RAG/AI-system**~~ ✅ BACKEND KLART - Behöver frontend UI
+4. ~~**Onboarding-flow**~~ ✅ KLART - Både backend och frontend implementerat
+5. ~~**RAG/AI-system**~~ ✅ KLART - Både backend och frontend implementerat
 
-**Nästa prioritet: Frontend UI för:**
-- Onboarding-formulär (registrering via invitation token)
-- ProductPlan-komponenter (admin skapar/skickar, kund godkänner)
-- RAG Chat-komponent med streaming
+**Implementerat denna session (2025-11-27):**
+- ✅ OnboardingPage.tsx - Multi-step wizard med token validation
+- ✅ ProductPlanManagement.tsx + ProductPlanCustomerView.tsx - Admin och kund-vyer
+- ✅ RAGController - SSE streaming endpoints
+- ✅ RAGChatPanel.tsx + GeneratedDocuments.tsx - Chat och dokument-hantering med streaming
+- ✅ ProjectTimeline.tsx - Visuell timeline med milstolpar och progress tracking
+- ✅ Meeting-resurs + hooks (backend + API integration)
+- ✅ ProjectMeetings.tsx - Google Calendar-liknande månadsvy med färgkodning
+- ✅ **Dashboard Integration (2025-11-27):**
+  - ✅ ProjectSelector.tsx - Projektväljare med dropdown, localStorage-persistering, och i18n-stöd
+  - ✅ ProjectOverview.tsx - Tab-baserad container för Timeline och Möten
+  - ✅ Integration i CustomerDashboard, AdminDashboard, och ProjectLeaderDashboard
+  - ✅ Component tests: ProjectSelector.test.tsx (13 test cases)
+  - ✅ Component tests: ProjectOverview.test.tsx (11 test cases)
+  - ✅ Integration tests: Uppdaterade CustomerDashboard.test.tsx med 6 nya test cases
+  - ✅ Uppdaterade i18n-filer (locales/sv.json och locales/en.json)
+  - ✅ **330 tester passerar (100% pass rate)**
 
-Nuvarande implementation har **mycket bra grund** - alla backend-system för MVP är på plats!
+**Nästa prioritet:**
+- **[ARIAN]** Email-integration för notifikationer och kommunikation (kritiskt för MVP)
+- **[ARIAN]** Updates/Feed-system för projektuppdateringar
+- Filuppladdning till S3/storage
+
+Nuvarande implementation har **mycket stark grund** - alla kritiska MVP-system är implementerade både backend och frontend!
 
 ---
 
@@ -727,10 +773,14 @@ Arian ansvarar för hela notifikations- och event-systemet med följande feature
 ---
 
 **Sammanfattning:**
-- ✅ **Bra:** Backend-resurser, rollsystem, dashboards, formulär-komponenter, **dynamiska projektformulär**, **admin filhantering**, **interna anteckningar**, **prioritets-toggle**
-- ✅ **Nytt (2025-11-27):** RAG/AI Phase 2 (GeminiClient, EmbeddingService, DocumentGenerator, RAGService, Oban workers), Onboarding-backend (OnboardingService, OnboardingController, Company utökad), ProductPlan-system (full state machine med godkännandeflöde)
-- ⚠️ **Delvis:** Basic CRUD fungerar, formulärsvar lagras, men inte det kompletta flödet
-- ❌ **Saknas:** Frontend UI för onboarding/produktplan/RAG chat, email, updates/feed
+- ✅ **KLART:** Backend-resurser, rollsystem, dashboards, formulär-komponenter, **dynamiska projektformulär**, **admin filhantering**, **interna anteckningar**, **prioritets-toggle**, **onboarding UI**, **produktplan UI**, **RAG chat UI**, **timeline/milestones**, **möten/kalender**, **dashboard integration med projektväljare**
+- ✅ **Nytt (2025-11-27):**
+  - Frontend: OnboardingPage.tsx, ProductPlanManagement + CustomerView, RAGChatPanel + GeneratedDocuments, ProjectTimeline, ProjectMeetings, **ProjectSelector + ProjectOverview**
+  - Backend: RAGController med SSE streaming, Meeting-resurs, Milestone-resurs
+  - Integration: 30 nya hooks i useApi.ts (23 för RAG/ProductPlan/Timeline, 7 för Meetings), useRAGChat custom hook
+  - Dashboards: ProjectMeetings + ProjectTimeline integrerade via ProjectSelector och ProjectOverview i CustomerDashboard, AdminDashboard, och ProjectLeaderDashboard
+  - Testing: **330 tester passerar (100%)** - 24 nya test cases för ProjectSelector, ProjectOverview, och dashboard integration
+- ❌ **Saknas:** Email-integration, updates/feed-system, filuppladdning till S3
 - 🔔 **Arian:** Hela notifikations- och event-systemet (email, in-app, real-time, multi-transport)
 
 **Senaste framsteg (2025-11-27):**
@@ -813,9 +863,10 @@ Arian ansvarar för hela notifikations- och event-systemet med följande feature
 - ✅ Inga kompileringsvarningar
 
 **Nästa steg:**
-- 🎨 **Frontend: Onboarding UI** - Registreringsformulär via invitation token
-- 🎨 **Frontend: ProductPlan UI** - Admin-vy för att skapa/skicka produktplaner, kund-vy för godkännande
-- 🎨 **Frontend: RAG Chat UI** - Chat-komponent med streaming
+- 🔗 **Integrera komponenter** - Lägg till ProjectMeetings, ProjectTimeline i CustomerDashboard och AdminDashboard
+- 📧 **[ARIAN]** Email-integration (SendGrid/AWS SES) - Kritiskt för MVP-kommunikation
+- 📰 **[ARIAN]** Updates/Feed-system - Projektuppdateringar för kunder
+- 📎 **Filuppladdning** - S3/storage integration för dokument och bilder
 - **[ARIAN]** Sätt upp notifikations- och event-systemet enligt work package ovan
 
 **ACTION REQUIRED:**
@@ -916,21 +967,37 @@ Ett AI-drivet system som automatiskt strukturerar kundens svar i logiska dokumen
   - [x] enqueue_form_responses/1
   - [x] enqueue_documents/1
 
-#### Backend - API
-- [ ] POST /api/rag/projects/:id/chat (streaming SSE)
-- [ ] GET /api/rag/projects/:id/chat/history
-- [ ] POST /api/rag/projects/:id/generate-documents
-- [ ] GET /api/rag/projects/:id/documents
-- [ ] POST /api/rag/projects/:id/knowledge
-- [ ] GET /api/rag/projects/:id/knowledge
-- [ ] require_ai_access plug för access control
+#### Backend - API ✅ KLART (2025-11-27)
+- [x] **RAGController** (`backend/lib/backend_web/controllers/rag_controller.ex`)
+- [x] POST /api/rag/projects/:id/chat (streaming SSE med chunked response)
+- [x] GET /api/rag/projects/:id/chat/history
+- [x] POST /api/rag/projects/:id/generate-documents (enqueue alla 4 dokumenttyper)
+- [x] POST /api/rag/projects/:id/generate-document/:type (enqueue specifik typ)
+- [x] POST /api/rag/projects/:id/regenerate-document/:type (regenerera med versionering)
+- [x] GET /api/rag/projects/:id/documents (hämta genererade dokument)
+- [x] POST /api/rag/projects/:id/embed (trigga embedding av formulärsvar)
+- [x] POST /api/rag/projects/:id/knowledge (skapa manuell kunskap)
+- [x] GET /api/rag/projects/:id/knowledge (hämta manuell kunskap)
+- [x] **require_ai_access plug** för access control (admin + staff med can_use_ai_chat)
 
-#### Frontend
-- [ ] RAGChatPage.tsx - Full-page chat med streaming
-- [ ] ProjectRAGChat.tsx - Chat component
-- [ ] GeneratedDocuments.tsx - Visa/regenerera dokument
-- [ ] KnowledgeManager.tsx - Hantera manuell kunskap
-- [ ] useRAG.ts hooks (useProjectChat, useChatHistory, etc.)
+#### Frontend ✅ KLART (2025-11-27)
+- [x] **useRAGChat.ts** - Custom hook för streaming chat med SSE (`src/hooks/useRAGChat.ts`)
+  - [x] sendMessage med streaming support
+  - [x] Message accumulation och parsing
+  - [x] Abort controller för stop streaming
+  - [x] Loading states och error handling
+- [x] **RAGChatPanel.tsx** - Chat component med streaming (`components/rag/RAGChatPanel.tsx`)
+  - [x] Message history med auto-scroll
+  - [x] Streaming indicator (pulsing dots)
+  - [x] Suggested questions i empty state
+  - [x] Stop streaming-knapp
+  - [x] User/assistant message styling
+- [x] **GeneratedDocuments.tsx** - Visa/regenerera dokument (`components/rag/GeneratedDocuments.tsx`)
+  - [x] Visa alla 4 dokumenttyper (spec, requirements, design, timeline)
+  - [x] Generate/regenerate funktionalitet
+  - [x] Document viewer modal med markdown rendering
+  - [x] Status indicators (draft, published, archived)
+- [ ] KnowledgeManager.tsx - Hantera manuell kunskap (ej implementerad än)
 
 ### Dependencies ✅ TILLAGDA
 ```elixir

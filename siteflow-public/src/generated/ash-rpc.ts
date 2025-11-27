@@ -296,6 +296,49 @@ export type ProductPlanResourceSchema = {
 
 
 
+// Milestone Schema
+export type MilestoneResourceSchema = {
+  __type: "Resource";
+  __primitiveFields: "id" | "title" | "description" | "dueDate" | "completedAt" | "orderIndex" | "status" | "projectId" | "createdById";
+  id: UUID;
+  title: string;
+  description: string | null;
+  dueDate: AshDate | null;
+  completedAt: UtcDateTimeUsec | null;
+  orderIndex: number | null;
+  status: "pending" | "in_progress" | "completed" | null;
+  projectId: UUID;
+  createdById: UUID | null;
+  project: { __type: "Relationship"; __resource: ProjectResourceSchema; };
+  createdBy: { __type: "Relationship"; __resource: UserResourceSchema | null; };
+};
+
+
+
+// Meeting Schema
+export type MeetingResourceSchema = {
+  __type: "Resource";
+  __primitiveFields: "id" | "title" | "description" | "meetingType" | "scheduledAt" | "durationMinutes" | "location" | "meetingUrl" | "notes" | "actionItems" | "attendees" | "status" | "projectId" | "createdById";
+  id: UUID;
+  title: string;
+  description: string | null;
+  meetingType: "kickoff" | "status_update" | "review" | "planning" | "retrospective" | "other" | null;
+  scheduledAt: UtcDateTimeUsec | null;
+  durationMinutes: number | null;
+  location: string | null;
+  meetingUrl: string | null;
+  notes: string | null;
+  actionItems: Record<string, any> | null;
+  attendees: Array<string> | null;
+  status: "scheduled" | "in_progress" | "completed" | "cancelled" | null;
+  projectId: UUID;
+  createdById: UUID | null;
+  project: { __type: "Relationship"; __resource: ProjectResourceSchema; };
+  createdBy: { __type: "Relationship"; __resource: UserResourceSchema | null; };
+};
+
+
+
 
 
 export type UserFilterInput = {
@@ -1387,6 +1430,186 @@ export type ProductPlanFilterInput = {
   createdBy?: UserFilterInput;
 
   approvedBy?: UserFilterInput;
+
+};
+export type MilestoneFilterInput = {
+  and?: Array<MilestoneFilterInput>;
+  or?: Array<MilestoneFilterInput>;
+  not?: Array<MilestoneFilterInput>;
+
+  id?: {
+    eq?: UUID;
+    notEq?: UUID;
+    in?: Array<UUID>;
+  };
+
+  title?: {
+    eq?: string;
+    notEq?: string;
+    in?: Array<string>;
+  };
+
+  description?: {
+    eq?: string;
+    notEq?: string;
+    in?: Array<string>;
+  };
+
+  dueDate?: {
+    eq?: AshDate;
+    notEq?: AshDate;
+    greaterThan?: AshDate;
+    greaterThanOrEqual?: AshDate;
+    lessThan?: AshDate;
+    lessThanOrEqual?: AshDate;
+    in?: Array<AshDate>;
+  };
+
+  completedAt?: {
+    eq?: UtcDateTimeUsec;
+    notEq?: UtcDateTimeUsec;
+    greaterThan?: UtcDateTimeUsec;
+    greaterThanOrEqual?: UtcDateTimeUsec;
+    lessThan?: UtcDateTimeUsec;
+    lessThanOrEqual?: UtcDateTimeUsec;
+    in?: Array<UtcDateTimeUsec>;
+  };
+
+  orderIndex?: {
+    eq?: number;
+    notEq?: number;
+    greaterThan?: number;
+    greaterThanOrEqual?: number;
+    lessThan?: number;
+    lessThanOrEqual?: number;
+    in?: Array<number>;
+  };
+
+  status?: {
+    eq?: "pending" | "in_progress" | "completed";
+    notEq?: "pending" | "in_progress" | "completed";
+    in?: Array<"pending" | "in_progress" | "completed">;
+  };
+
+  projectId?: {
+    eq?: UUID;
+    notEq?: UUID;
+    in?: Array<UUID>;
+  };
+
+  createdById?: {
+    eq?: UUID;
+    notEq?: UUID;
+    in?: Array<UUID>;
+  };
+
+
+  project?: ProjectFilterInput;
+
+  createdBy?: UserFilterInput;
+
+};
+export type MeetingFilterInput = {
+  and?: Array<MeetingFilterInput>;
+  or?: Array<MeetingFilterInput>;
+  not?: Array<MeetingFilterInput>;
+
+  id?: {
+    eq?: UUID;
+    notEq?: UUID;
+    in?: Array<UUID>;
+  };
+
+  title?: {
+    eq?: string;
+    notEq?: string;
+    in?: Array<string>;
+  };
+
+  description?: {
+    eq?: string;
+    notEq?: string;
+    in?: Array<string>;
+  };
+
+  meetingType?: {
+    eq?: "kickoff" | "status_update" | "review" | "planning" | "retrospective" | "other";
+    notEq?: "kickoff" | "status_update" | "review" | "planning" | "retrospective" | "other";
+    in?: Array<"kickoff" | "status_update" | "review" | "planning" | "retrospective" | "other">;
+  };
+
+  scheduledAt?: {
+    eq?: UtcDateTimeUsec;
+    notEq?: UtcDateTimeUsec;
+    greaterThan?: UtcDateTimeUsec;
+    greaterThanOrEqual?: UtcDateTimeUsec;
+    lessThan?: UtcDateTimeUsec;
+    lessThanOrEqual?: UtcDateTimeUsec;
+    in?: Array<UtcDateTimeUsec>;
+  };
+
+  durationMinutes?: {
+    eq?: number;
+    notEq?: number;
+    greaterThan?: number;
+    greaterThanOrEqual?: number;
+    lessThan?: number;
+    lessThanOrEqual?: number;
+    in?: Array<number>;
+  };
+
+  location?: {
+    eq?: string;
+    notEq?: string;
+    in?: Array<string>;
+  };
+
+  meetingUrl?: {
+    eq?: string;
+    notEq?: string;
+    in?: Array<string>;
+  };
+
+  notes?: {
+    eq?: string;
+    notEq?: string;
+    in?: Array<string>;
+  };
+
+  actionItems?: {
+    eq?: Record<string, any>;
+    notEq?: Record<string, any>;
+    in?: Array<Record<string, any>>;
+  };
+
+  attendees?: {
+    eq?: Array<string>;
+    notEq?: Array<string>;
+    in?: Array<Array<string>>;
+  };
+
+  status?: {
+    eq?: "scheduled" | "in_progress" | "completed" | "cancelled";
+    notEq?: "scheduled" | "in_progress" | "completed" | "cancelled";
+    in?: Array<"scheduled" | "in_progress" | "completed" | "cancelled">;
+  };
+
+  projectId?: {
+    eq?: UUID;
+    notEq?: UUID;
+    in?: Array<UUID>;
+  };
+
+  createdById?: {
+    eq?: UUID;
+    notEq?: UUID;
+    in?: Array<UUID>;
+  };
+
+
+  project?: ProjectFilterInput;
+
+  createdBy?: UserFilterInput;
 
 };
 
@@ -5823,6 +6046,731 @@ export async function productPlanDestroy(
   };
 
   return executeActionRpcRequest<ProductPlanDestroyResult>(
+    payload,
+    config
+  );
+}
+
+
+export type MilestoneReadFields = UnifiedFieldSelection<MilestoneResourceSchema>[];
+
+
+export type InferMilestoneReadResult<
+  Fields extends MilestoneReadFields | undefined,
+  Page extends MilestoneReadConfig["page"] = undefined
+> = ConditionalPaginatedResultMixed<Page, Array<InferResult<MilestoneResourceSchema, Fields>>, {
+  results: Array<InferResult<MilestoneResourceSchema, Fields>>;
+  hasMore: boolean;
+  limit: number;
+  offset: number;
+  count?: number | null;
+  type: "offset";
+}, {
+  results: Array<InferResult<MilestoneResourceSchema, Fields>>;
+  hasMore: boolean;
+  limit: number;
+  after: string | null;
+  before: string | null;
+  previousPage: string;
+  nextPage: string;
+  count?: number | null;
+  type: "keyset";
+}>;
+
+export type MilestoneReadConfig = {
+  fields: MilestoneReadFields;
+  filter?: MilestoneFilterInput;
+  sort?: string;
+  page?: (
+    {
+      limit?: number;
+      offset?: number;
+      count?: boolean;
+    } | {
+      limit?: number;
+      after?: string;
+      before?: string;
+    }
+  );
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+};
+
+export type MilestoneReadResult<Fields extends MilestoneReadFields, Page extends MilestoneReadConfig["page"] = undefined> = | { success: true; data: InferMilestoneReadResult<Fields, Page>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function milestoneRead<Fields extends MilestoneReadFields, Config extends MilestoneReadConfig = MilestoneReadConfig>(
+  config: Config & { fields: Fields }
+): Promise<MilestoneReadResult<Fields, Config["page"]>> {
+  const payload = {
+    action: "milestone_read",
+    ...(config.fields !== undefined && { fields: config.fields }),
+    ...(config.filter && { filter: config.filter }),
+    ...(config.sort && { sort: config.sort }),
+    ...(config.page && { page: config.page })
+  };
+
+  return executeActionRpcRequest<MilestoneReadResult<Fields, Config["page"]>>(
+    payload,
+    config
+  );
+}
+
+
+export type MilestoneByProjectInput = {
+  projectId: UUID;
+};
+
+export const milestoneByProject = z.object({
+  projectId: z.uuid(),
+});
+
+export type MilestoneByProjectFields = UnifiedFieldSelection<MilestoneResourceSchema>[];
+export type InferMilestoneByProjectResult<
+  Fields extends MilestoneByProjectFields,
+> = Array<InferResult<MilestoneResourceSchema, Fields>>;
+
+export type MilestoneByProjectResult<Fields extends MilestoneByProjectFields> = | { success: true; data: InferMilestoneByProjectResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function milestoneByProject<Fields extends MilestoneByProjectFields>(
+  config: {
+  input: MilestoneByProjectInput;
+  fields: Fields;
+  filter?: MilestoneFilterInput;
+  sort?: string;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MilestoneByProjectResult<Fields>> {
+  const payload = {
+    action: "milestone_by_project",
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields }),
+    ...(config.filter && { filter: config.filter }),
+    ...(config.sort && { sort: config.sort })
+  };
+
+  return executeActionRpcRequest<MilestoneByProjectResult<Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MilestoneCreateInput = {
+  title: string;
+  description?: string | null;
+  dueDate?: AshDate | null;
+  orderIndex?: number | null;
+  status?: "pending" | "in_progress" | "completed" | null;
+  projectId: UUID;
+};
+
+export const milestoneCreate = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  dueDate: z.iso.date().optional(),
+  orderIndex: z.number().int().optional(),
+  status: z.enum(["pending", "in_progress", "completed"]).optional(),
+  projectId: z.uuid(),
+});
+
+export type MilestoneCreateFields = UnifiedFieldSelection<MilestoneResourceSchema>[];
+
+export type InferMilestoneCreateResult<
+  Fields extends MilestoneCreateFields | undefined,
+> = InferResult<MilestoneResourceSchema, Fields>;
+
+export type MilestoneCreateResult<Fields extends MilestoneCreateFields | undefined = undefined> = | { success: true; data: InferMilestoneCreateResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function milestoneCreate<Fields extends MilestoneCreateFields | undefined = undefined>(
+  config: {
+  input: MilestoneCreateInput;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MilestoneCreateResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "milestone_create",
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MilestoneCreateResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MilestoneUpdateInput = {
+  title?: string;
+  description?: string | null;
+  dueDate?: AshDate | null;
+  orderIndex?: number | null;
+  status?: "pending" | "in_progress" | "completed" | null;
+};
+
+export const milestoneUpdate = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
+  dueDate: z.iso.date().optional(),
+  orderIndex: z.number().int().optional(),
+  status: z.enum(["pending", "in_progress", "completed"]).optional(),
+});
+
+export type MilestoneUpdateFields = UnifiedFieldSelection<MilestoneResourceSchema>[];
+
+export type InferMilestoneUpdateResult<
+  Fields extends MilestoneUpdateFields | undefined,
+> = InferResult<MilestoneResourceSchema, Fields>;
+
+export type MilestoneUpdateResult<Fields extends MilestoneUpdateFields | undefined = undefined> = | { success: true; data: InferMilestoneUpdateResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function milestoneUpdate<Fields extends MilestoneUpdateFields | undefined = undefined>(
+  config: {
+  primaryKey: UUID;
+  input: MilestoneUpdateInput;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MilestoneUpdateResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "milestone_update",
+    primaryKey: config.primaryKey,
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MilestoneUpdateResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MilestoneMarkCompletedFields = UnifiedFieldSelection<MilestoneResourceSchema>[];
+
+export type InferMilestoneMarkCompletedResult<
+  Fields extends MilestoneMarkCompletedFields | undefined,
+> = InferResult<MilestoneResourceSchema, Fields>;
+
+export type MilestoneMarkCompletedResult<Fields extends MilestoneMarkCompletedFields | undefined = undefined> = | { success: true; data: InferMilestoneMarkCompletedResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function milestoneMarkCompleted<Fields extends MilestoneMarkCompletedFields | undefined = undefined>(
+  config: {
+  primaryKey: UUID;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MilestoneMarkCompletedResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "milestone_mark_completed",
+    primaryKey: config.primaryKey,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MilestoneMarkCompletedResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MilestoneReopenFields = UnifiedFieldSelection<MilestoneResourceSchema>[];
+
+export type InferMilestoneReopenResult<
+  Fields extends MilestoneReopenFields | undefined,
+> = InferResult<MilestoneResourceSchema, Fields>;
+
+export type MilestoneReopenResult<Fields extends MilestoneReopenFields | undefined = undefined> = | { success: true; data: InferMilestoneReopenResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function milestoneReopen<Fields extends MilestoneReopenFields | undefined = undefined>(
+  config: {
+  primaryKey: UUID;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MilestoneReopenResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "milestone_reopen",
+    primaryKey: config.primaryKey,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MilestoneReopenResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+
+export type MilestoneDestroyResult = | { success: true; data: {}; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function milestoneDestroy(
+  config: {
+  primaryKey: UUID;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MilestoneDestroyResult> {
+  const payload = {
+    action: "milestone_destroy",
+    primaryKey: config.primaryKey
+  };
+
+  return executeActionRpcRequest<MilestoneDestroyResult>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingReadFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+
+
+export type InferMeetingReadResult<
+  Fields extends MeetingReadFields | undefined,
+  Page extends MeetingReadConfig["page"] = undefined
+> = ConditionalPaginatedResultMixed<Page, Array<InferResult<MeetingResourceSchema, Fields>>, {
+  results: Array<InferResult<MeetingResourceSchema, Fields>>;
+  hasMore: boolean;
+  limit: number;
+  offset: number;
+  count?: number | null;
+  type: "offset";
+}, {
+  results: Array<InferResult<MeetingResourceSchema, Fields>>;
+  hasMore: boolean;
+  limit: number;
+  after: string | null;
+  before: string | null;
+  previousPage: string;
+  nextPage: string;
+  count?: number | null;
+  type: "keyset";
+}>;
+
+export type MeetingReadConfig = {
+  fields: MeetingReadFields;
+  filter?: MeetingFilterInput;
+  sort?: string;
+  page?: (
+    {
+      limit?: number;
+      offset?: number;
+      count?: boolean;
+    } | {
+      limit?: number;
+      after?: string;
+      before?: string;
+    }
+  );
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+};
+
+export type MeetingReadResult<Fields extends MeetingReadFields, Page extends MeetingReadConfig["page"] = undefined> = | { success: true; data: InferMeetingReadResult<Fields, Page>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingRead<Fields extends MeetingReadFields, Config extends MeetingReadConfig = MeetingReadConfig>(
+  config: Config & { fields: Fields }
+): Promise<MeetingReadResult<Fields, Config["page"]>> {
+  const payload = {
+    action: "meeting_read",
+    ...(config.fields !== undefined && { fields: config.fields }),
+    ...(config.filter && { filter: config.filter }),
+    ...(config.sort && { sort: config.sort }),
+    ...(config.page && { page: config.page })
+  };
+
+  return executeActionRpcRequest<MeetingReadResult<Fields, Config["page"]>>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingByProjectInput = {
+  projectId: UUID;
+};
+
+export const meetingByProject = z.object({
+  projectId: z.uuid(),
+});
+
+export type MeetingByProjectFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+export type InferMeetingByProjectResult<
+  Fields extends MeetingByProjectFields,
+> = Array<InferResult<MeetingResourceSchema, Fields>>;
+
+export type MeetingByProjectResult<Fields extends MeetingByProjectFields> = | { success: true; data: InferMeetingByProjectResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingByProject<Fields extends MeetingByProjectFields>(
+  config: {
+  input: MeetingByProjectInput;
+  fields: Fields;
+  filter?: MeetingFilterInput;
+  sort?: string;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingByProjectResult<Fields>> {
+  const payload = {
+    action: "meeting_by_project",
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields }),
+    ...(config.filter && { filter: config.filter }),
+    ...(config.sort && { sort: config.sort })
+  };
+
+  return executeActionRpcRequest<MeetingByProjectResult<Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingUpcomingByProjectInput = {
+  projectId: UUID;
+};
+
+export const meetingUpcomingByProject = z.object({
+  projectId: z.uuid(),
+});
+
+export type MeetingUpcomingByProjectFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+export type InferMeetingUpcomingByProjectResult<
+  Fields extends MeetingUpcomingByProjectFields,
+> = Array<InferResult<MeetingResourceSchema, Fields>>;
+
+export type MeetingUpcomingByProjectResult<Fields extends MeetingUpcomingByProjectFields> = | { success: true; data: InferMeetingUpcomingByProjectResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingUpcomingByProject<Fields extends MeetingUpcomingByProjectFields>(
+  config: {
+  input: MeetingUpcomingByProjectInput;
+  fields: Fields;
+  filter?: MeetingFilterInput;
+  sort?: string;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingUpcomingByProjectResult<Fields>> {
+  const payload = {
+    action: "meeting_upcoming_by_project",
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields }),
+    ...(config.filter && { filter: config.filter }),
+    ...(config.sort && { sort: config.sort })
+  };
+
+  return executeActionRpcRequest<MeetingUpcomingByProjectResult<Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingCreateInput = {
+  title: string;
+  description?: string | null;
+  meetingType?: "kickoff" | "status_update" | "review" | "planning" | "retrospective" | "other" | null;
+  scheduledAt?: UtcDateTimeUsec | null;
+  durationMinutes?: number | null;
+  location?: string | null;
+  meetingUrl?: string | null;
+  notes?: string | null;
+  actionItems?: Record<string, any> | null;
+  attendees?: Array<string> | null;
+  status?: "scheduled" | "in_progress" | "completed" | "cancelled" | null;
+  projectId: UUID;
+};
+
+export const meetingCreate = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  meetingType: z.enum(["kickoff", "status_update", "review", "planning", "retrospective", "other"]).optional(),
+  scheduledAt: z.iso.datetime().optional(),
+  durationMinutes: z.number().int().optional(),
+  location: z.string().optional(),
+  meetingUrl: z.string().optional(),
+  notes: z.string().optional(),
+  actionItems: z.record(z.string(), z.any()).optional(),
+  attendees: z.array(z.string()).optional(),
+  status: z.enum(["scheduled", "in_progress", "completed", "cancelled"]).optional(),
+  projectId: z.uuid(),
+});
+
+export type MeetingCreateFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+
+export type InferMeetingCreateResult<
+  Fields extends MeetingCreateFields | undefined,
+> = InferResult<MeetingResourceSchema, Fields>;
+
+export type MeetingCreateResult<Fields extends MeetingCreateFields | undefined = undefined> = | { success: true; data: InferMeetingCreateResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingCreate<Fields extends MeetingCreateFields | undefined = undefined>(
+  config: {
+  input: MeetingCreateInput;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingCreateResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "meeting_create",
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MeetingCreateResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingUpdateInput = {
+  title?: string;
+  description?: string | null;
+  meetingType?: "kickoff" | "status_update" | "review" | "planning" | "retrospective" | "other" | null;
+  scheduledAt?: UtcDateTimeUsec | null;
+  durationMinutes?: number | null;
+  location?: string | null;
+  meetingUrl?: string | null;
+  notes?: string | null;
+  actionItems?: Record<string, any> | null;
+  attendees?: Array<string> | null;
+  status?: "scheduled" | "in_progress" | "completed" | "cancelled" | null;
+};
+
+export const meetingUpdate = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
+  meetingType: z.enum(["kickoff", "status_update", "review", "planning", "retrospective", "other"]).optional(),
+  scheduledAt: z.iso.datetime().optional(),
+  durationMinutes: z.number().int().optional(),
+  location: z.string().optional(),
+  meetingUrl: z.string().optional(),
+  notes: z.string().optional(),
+  actionItems: z.record(z.string(), z.any()).optional(),
+  attendees: z.array(z.string()).optional(),
+  status: z.enum(["scheduled", "in_progress", "completed", "cancelled"]).optional(),
+});
+
+export type MeetingUpdateFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+
+export type InferMeetingUpdateResult<
+  Fields extends MeetingUpdateFields | undefined,
+> = InferResult<MeetingResourceSchema, Fields>;
+
+export type MeetingUpdateResult<Fields extends MeetingUpdateFields | undefined = undefined> = | { success: true; data: InferMeetingUpdateResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingUpdate<Fields extends MeetingUpdateFields | undefined = undefined>(
+  config: {
+  primaryKey: UUID;
+  input: MeetingUpdateInput;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingUpdateResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "meeting_update",
+    primaryKey: config.primaryKey,
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MeetingUpdateResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingStartFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+
+export type InferMeetingStartResult<
+  Fields extends MeetingStartFields | undefined,
+> = InferResult<MeetingResourceSchema, Fields>;
+
+export type MeetingStartResult<Fields extends MeetingStartFields | undefined = undefined> = | { success: true; data: InferMeetingStartResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingStart<Fields extends MeetingStartFields | undefined = undefined>(
+  config: {
+  primaryKey: UUID;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingStartResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "meeting_start",
+    primaryKey: config.primaryKey,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MeetingStartResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingCompleteInput = {
+  notes?: string | null;
+  actionItems?: Record<string, any> | null;
+};
+
+export const meetingComplete = z.object({
+  notes: z.string().optional(),
+  actionItems: z.record(z.string(), z.any()).optional(),
+});
+
+export type MeetingCompleteFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+
+export type InferMeetingCompleteResult<
+  Fields extends MeetingCompleteFields | undefined,
+> = InferResult<MeetingResourceSchema, Fields>;
+
+export type MeetingCompleteResult<Fields extends MeetingCompleteFields | undefined = undefined> = | { success: true; data: InferMeetingCompleteResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingComplete<Fields extends MeetingCompleteFields | undefined = undefined>(
+  config: {
+  primaryKey: UUID;
+  input?: MeetingCompleteInput;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingCompleteResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "meeting_complete",
+    primaryKey: config.primaryKey,
+    input: config.input,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MeetingCompleteResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+export type MeetingCancelFields = UnifiedFieldSelection<MeetingResourceSchema>[];
+
+export type InferMeetingCancelResult<
+  Fields extends MeetingCancelFields | undefined,
+> = InferResult<MeetingResourceSchema, Fields>;
+
+export type MeetingCancelResult<Fields extends MeetingCancelFields | undefined = undefined> = | { success: true; data: InferMeetingCancelResult<Fields>; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingCancel<Fields extends MeetingCancelFields | undefined = undefined>(
+  config: {
+  primaryKey: UUID;
+  fields?: Fields;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingCancelResult<Fields extends undefined ? [] : Fields>> {
+  const payload = {
+    action: "meeting_cancel",
+    primaryKey: config.primaryKey,
+    ...(config.fields !== undefined && { fields: config.fields })
+  };
+
+  return executeActionRpcRequest<MeetingCancelResult<Fields extends undefined ? [] : Fields>>(
+    payload,
+    config
+  );
+}
+
+
+
+export type MeetingDestroyResult = | { success: true; data: {}; }
+| { success: false; errors: AshRpcError[]; }
+
+;
+
+export async function meetingDestroy(
+  config: {
+  primaryKey: UUID;
+  headers?: Record<string, string>;
+  fetchOptions?: RequestInit;
+  customFetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+}
+): Promise<MeetingDestroyResult> {
+  const payload = {
+    action: "meeting_destroy",
+    primaryKey: config.primaryKey
+  };
+
+  return executeActionRpcRequest<MeetingDestroyResult>(
     payload,
     config
   );

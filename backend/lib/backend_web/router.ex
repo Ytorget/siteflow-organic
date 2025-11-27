@@ -38,6 +38,28 @@ defmodule BackendWeb.Router do
     post "/rpc/validate", BackendWeb.AshTypescriptRpcController, :validate
   end
 
+  # Protected API routes - RAG/AI System
+  scope "/api/rag" do
+    pipe_through [:api, :authenticated]
+
+    # Chat endpoints
+    post "/projects/:id/chat", BackendWeb.RAGController, :chat
+    get "/projects/:id/chat/history", BackendWeb.RAGController, :chat_history
+
+    # Document generation
+    post "/projects/:id/generate-documents", BackendWeb.RAGController, :generate_documents
+    post "/projects/:id/generate-documents/specific", BackendWeb.RAGController, :generate_specific_documents
+    post "/projects/:id/documents/:doc_id/regenerate", BackendWeb.RAGController, :regenerate_document
+    get "/projects/:id/documents", BackendWeb.RAGController, :list_documents
+
+    # Manual knowledge management
+    post "/projects/:id/knowledge", BackendWeb.RAGController, :add_knowledge
+    get "/projects/:id/knowledge", BackendWeb.RAGController, :list_knowledge
+
+    # Embedding
+    post "/projects/:id/embed", BackendWeb.RAGController, :embed_project_data
+  end
+
   # Protected API routes - Ash JSON API
   scope "/api" do
     pipe_through [:api, :authenticated]

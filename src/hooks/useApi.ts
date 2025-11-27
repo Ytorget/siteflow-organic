@@ -35,12 +35,40 @@ import {
   internalNoteCreate,
   internalNoteUpdate,
   internalNoteDestroy,
+  productPlanByProject,
+  productPlanActiveByProject,
+  productPlanCreate,
+  productPlanUpdate,
+  productPlanSendToCustomer,
+  productPlanMarkViewed,
+  productPlanApprove,
+  productPlanRequestChanges,
+  productPlanRevise,
+  productPlanArchive,
+  milestoneRead,
+  milestoneByProject,
+  milestoneCreate,
+  milestoneUpdate,
+  milestoneMarkCompleted,
+  milestoneReopen,
+  milestoneDestroy,
+  meetingRead,
+  meetingByProject,
+  meetingUpcomingByProject,
+  meetingCreate,
+  meetingUpdate,
+  meetingStart,
+  meetingComplete,
+  meetingCancel,
+  meetingDestroy,
   type CompanyResourceSchema,
   type ProjectResourceSchema,
   type TicketResourceSchema,
   type InvitationResourceSchema,
   type FormResponseResourceSchema,
   type InternalNoteResourceSchema,
+  type MilestoneResourceSchema,
+  type MeetingResourceSchema,
 } from '../generated/ash-rpc';
 
 // Query keys for cache management
@@ -53,10 +81,17 @@ export const queryKeys = {
   documents: ['documents'] as const,
   formResponses: ['formResponses'] as const,
   internalNotes: ['internalNotes'] as const,
+  productPlans: ['productPlans'] as const,
+  milestones: ['milestones'] as const,
+  meetings: ['meetings'] as const,
   project: (id: string) => ['project', id] as const,
   ticket: (id: string) => ['ticket', id] as const,
   formResponsesByProject: (projectId: string) => ['formResponses', 'project', projectId] as const,
   internalNotesByProject: (projectId: string) => ['internalNotes', 'project', projectId] as const,
+  productPlansByProject: (projectId: string) => ['productPlans', 'project', projectId] as const,
+  milestonesByProject: (projectId: string) => ['milestones', 'project', projectId] as const,
+  meetingsByProject: (projectId: string) => ['meetings', 'project', projectId] as const,
+  upcomingMeetingsByProject: (projectId: string) => ['meetings', 'project', projectId, 'upcoming'] as const,
 };
 
 // Helper to create config with auth headers
@@ -910,6 +945,671 @@ export function useDeleteInternalNote() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.internalNotesByProject(variables.projectId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.internalNotes });
+    },
+  });
+}
+
+// ============== Product Plan Hooks ==============
+
+export function useProductPlansByProject(projectId: string) {
+  const config = useAuthConfig();
+
+  return useQuery({
+    queryKey: queryKeys.productPlansByProject(projectId),
+    queryFn: async () => {
+      const result = await productPlanByProject({
+        args: { projectId },
+        fields: ['id', 'title', 'content', 'pdfUrl', 'state', 'version', 'sentAt', 'viewedAt', 'approvedAt', 'rejectedAt', 'projectId', 'createdById', 'insertedAt', 'updatedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to fetch product plans');
+      }
+      return result.data;
+    },
+    enabled: !!projectId,
+  });
+}
+
+export function useActiveProductPlan(projectId: string) {
+  const config = useAuthConfig();
+
+  return useQuery({
+    queryKey: [...queryKeys.productPlansByProject(projectId), 'active'],
+    queryFn: async () => {
+      const result = await productPlanActiveByProject({
+        args: { projectId },
+        fields: ['id', 'title', 'content', 'pdfUrl', 'state', 'version', 'sentAt', 'viewedAt', 'approvedAt', 'projectId', 'insertedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to fetch active product plan');
+      }
+      return result.data;
+    },
+    enabled: !!projectId,
+  });
+}
+
+export function useCreateProductPlan() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async (input: {
+      projectId: string;
+      title: string;
+      content?: string;
+      pdfUrl?: string;
+    }) => {
+      const result = await productPlanCreate({
+        input,
+        fields: ['id', 'title', 'state', 'version'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to create product plan');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useUpdateProductPlan() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      projectId,
+      title,
+      content,
+      pdfUrl,
+    }: {
+      id: string;
+      projectId: string;
+      title?: string;
+      content?: string;
+      pdfUrl?: string;
+    }) => {
+      const result = await productPlanUpdate({
+        primaryKey: id,
+        input: { title, content, pdfUrl },
+        fields: ['id', 'title', 'content', 'pdfUrl', 'updatedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to update product plan');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useSendProductPlanToCustomer() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await productPlanSendToCustomer({
+        primaryKey: id,
+        fields: ['id', 'state', 'sentAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to send product plan');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useMarkProductPlanViewed() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await productPlanMarkViewed({
+        primaryKey: id,
+        fields: ['id', 'state', 'viewedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to mark product plan as viewed');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useApproveProductPlan() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      projectId,
+      customerFeedback
+    }: {
+      id: string;
+      projectId: string;
+      customerFeedback?: string;
+    }) => {
+      const result = await productPlanApprove({
+        primaryKey: id,
+        input: customerFeedback ? { customerFeedback } : undefined,
+        fields: ['id', 'state', 'approvedAt', 'customerFeedback'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to approve product plan');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useRequestProductPlanChanges() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      projectId,
+      changeRequests
+    }: {
+      id: string;
+      projectId: string;
+      changeRequests: Record<string, unknown>;
+    }) => {
+      const result = await productPlanRequestChanges({
+        primaryKey: id,
+        input: { changeRequests },
+        fields: ['id', 'state', 'rejectedAt', 'changeRequests'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to request changes');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useReviseProductPlan() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      projectId,
+      content,
+      pdfUrl,
+    }: {
+      id: string;
+      projectId: string;
+      content?: string;
+      pdfUrl?: string;
+    }) => {
+      const result = await productPlanRevise({
+        primaryKey: id,
+        input: { content, pdfUrl },
+        fields: ['id', 'state', 'version', 'content', 'pdfUrl'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to revise product plan');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useArchiveProductPlan() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await productPlanArchive({
+        primaryKey: id,
+        fields: ['id', 'state'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to archive product plan');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.productPlansByProject(variables.projectId) });
+    },
+  });
+}
+
+// ==================== Milestone Hooks ====================
+
+export function useMilestonesByProject(projectId: string) {
+  const config = useAuthConfig();
+
+  return useQuery({
+    queryKey: queryKeys.milestonesByProject(projectId),
+    queryFn: async () => {
+      const result = await milestoneByProject({
+        input: { projectId },
+        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'createdAt', 'updatedAt'],
+        sort: 'orderIndex',
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to fetch milestones');
+      }
+      return result.data;
+    },
+    enabled: !!projectId,
+  });
+}
+
+export function useCreateMilestone() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      title,
+      description,
+      dueDate,
+      orderIndex,
+      status,
+    }: {
+      projectId: string;
+      title: string;
+      description?: string;
+      dueDate?: string;
+      orderIndex?: number;
+      status?: 'pending' | 'in_progress' | 'completed';
+    }) => {
+      const result = await milestoneCreate({
+        input: { projectId, title, description, dueDate, orderIndex, status },
+        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'createdAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to create milestone');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.milestonesByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useUpdateMilestone() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      projectId,
+      title,
+      description,
+      dueDate,
+      orderIndex,
+      status,
+    }: {
+      id: string;
+      projectId: string;
+      title?: string;
+      description?: string;
+      dueDate?: string;
+      orderIndex?: number;
+      status?: 'pending' | 'in_progress' | 'completed';
+    }) => {
+      const result = await milestoneUpdate({
+        primaryKey: id,
+        input: { title, description, dueDate, orderIndex, status },
+        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'updatedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to update milestone');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.milestonesByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useMarkMilestoneCompleted() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await milestoneMarkCompleted({
+        primaryKey: id,
+        fields: ['id', 'status', 'completedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to mark milestone completed');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.milestonesByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useReopenMilestone() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await milestoneReopen({
+        primaryKey: id,
+        fields: ['id', 'status', 'completedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to reopen milestone');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.milestonesByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useDeleteMilestone() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await milestoneDestroy({
+        primaryKey: id,
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to delete milestone');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.milestonesByProject(variables.projectId) });
+    },
+  });
+}
+
+// ==================== Meeting Hooks ====================
+
+export function useMeetingsByProject(projectId: string) {
+  const config = useAuthConfig();
+
+  return useQuery({
+    queryKey: queryKeys.meetingsByProject(projectId),
+    queryFn: async () => {
+      const result = await meetingByProject({
+        input: { projectId },
+        fields: ['id', 'title', 'description', 'meetingType', 'scheduledAt', 'durationMinutes', 'location', 'meetingUrl', 'notes', 'actionItems', 'attendees', 'status', 'createdAt', 'updatedAt'],
+        sort: 'scheduledAt',
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to fetch meetings');
+      }
+      return result.data;
+    },
+    enabled: !!projectId,
+  });
+}
+
+export function useUpcomingMeetingsByProject(projectId: string) {
+  const config = useAuthConfig();
+
+  return useQuery({
+    queryKey: queryKeys.upcomingMeetingsByProject(projectId),
+    queryFn: async () => {
+      const result = await meetingUpcomingByProject({
+        input: { projectId },
+        fields: ['id', 'title', 'description', 'meetingType', 'scheduledAt', 'durationMinutes', 'location', 'meetingUrl', 'attendees', 'status'],
+        sort: 'scheduledAt',
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to fetch upcoming meetings');
+      }
+      return result.data;
+    },
+    enabled: !!projectId,
+  });
+}
+
+export function useCreateMeeting() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async (data: {
+      projectId: string;
+      title: string;
+      description?: string;
+      meetingType?: 'kickoff' | 'status_update' | 'review' | 'planning' | 'retrospective' | 'other';
+      scheduledAt?: string;
+      durationMinutes?: number;
+      location?: string;
+      meetingUrl?: string;
+      attendees?: string[];
+    }) => {
+      const result = await meetingCreate({
+        input: {
+          projectId: data.projectId,
+          title: data.title,
+          description: data.description,
+          meetingType: data.meetingType,
+          scheduledAt: data.scheduledAt,
+          durationMinutes: data.durationMinutes,
+          location: data.location,
+          meetingUrl: data.meetingUrl,
+          attendees: data.attendees,
+        },
+        fields: ['id', 'title', 'meetingType', 'scheduledAt', 'status'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to create meeting');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetingsByProject(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.upcomingMeetingsByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useUpdateMeeting() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      projectId: string;
+      title?: string;
+      description?: string;
+      meetingType?: 'kickoff' | 'status_update' | 'review' | 'planning' | 'retrospective' | 'other';
+      scheduledAt?: string;
+      durationMinutes?: number;
+      location?: string;
+      meetingUrl?: string;
+      notes?: string;
+      actionItems?: any;
+      attendees?: string[];
+    }) => {
+      const result = await meetingUpdate({
+        primaryKey: data.id,
+        input: {
+          title: data.title,
+          description: data.description,
+          meetingType: data.meetingType,
+          scheduledAt: data.scheduledAt,
+          durationMinutes: data.durationMinutes,
+          location: data.location,
+          meetingUrl: data.meetingUrl,
+          notes: data.notes,
+          actionItems: data.actionItems,
+          attendees: data.attendees,
+        },
+        fields: ['id', 'title', 'notes', 'actionItems', 'status', 'updatedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to update meeting');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetingsByProject(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.upcomingMeetingsByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useStartMeeting() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await meetingStart({
+        primaryKey: id,
+        fields: ['id', 'status'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to start meeting');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetingsByProject(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.upcomingMeetingsByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useCompleteMeeting() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      projectId,
+      notes,
+      actionItems,
+    }: {
+      id: string;
+      projectId: string;
+      notes?: string;
+      actionItems?: any;
+    }) => {
+      const result = await meetingComplete({
+        primaryKey: id,
+        input: { notes, actionItems },
+        fields: ['id', 'status', 'notes', 'actionItems'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to complete meeting');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetingsByProject(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.upcomingMeetingsByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useCancelMeeting() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await meetingCancel({
+        primaryKey: id,
+        fields: ['id', 'status'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to cancel meeting');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetingsByProject(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.upcomingMeetingsByProject(variables.projectId) });
+    },
+  });
+}
+
+export function useDeleteMeeting() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      const result = await meetingDestroy({
+        primaryKey: id,
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to delete meeting');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetingsByProject(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.upcomingMeetingsByProject(variables.projectId) });
     },
   });
 }

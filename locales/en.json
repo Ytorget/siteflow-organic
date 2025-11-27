@@ -1136,5 +1136,17 @@
     "noTickets": "No tickets to display",
     "noProjects": "No projects to display",
     "active": "Active"
+  },
+  "projectSelector": {
+    "placeholder": "Select project",
+    "noProjects": "You have no projects",
+    "loading": "Loading projects...",
+    "error": "Could not fetch projects"
+  },
+  "projectOverview": {
+    "title": "Project Overview",
+    "timeline": "Timeline",
+    "meetings": "Meetings",
+    "noSelection": "Select a project to see timeline and meetings"
   }
 }

@@ -128,6 +128,30 @@ defmodule Backend.Portal do
       rpc_action :product_plan_archive, :archive
       rpc_action :product_plan_destroy, :destroy
     end
+
+    # Timeline/Milestones System
+    resource Backend.Portal.Milestone do
+      rpc_action :milestone_read, :read
+      rpc_action :milestone_by_project, :by_project
+      rpc_action :milestone_create, :create
+      rpc_action :milestone_update, :update
+      rpc_action :milestone_mark_completed, :mark_completed
+      rpc_action :milestone_reopen, :reopen
+      rpc_action :milestone_destroy, :destroy
+    end
+
+    # Meetings System
+    resource Backend.Portal.Meeting do
+      rpc_action :meeting_read, :read
+      rpc_action :meeting_by_project, :by_project
+      rpc_action :meeting_upcoming_by_project, :upcoming_by_project
+      rpc_action :meeting_create, :create
+      rpc_action :meeting_update, :update
+      rpc_action :meeting_start, :start_meeting
+      rpc_action :meeting_complete, :complete_meeting
+      rpc_action :meeting_cancel, :cancel_meeting
+      rpc_action :meeting_destroy, :destroy
+    end
   end
 
   resources do
@@ -147,5 +171,9 @@ defmodule Backend.Portal do
     resource Backend.Portal.ManualKnowledgeEntry
     # Product Plan System
     resource Backend.Portal.ProductPlan
+    # Timeline/Milestones System
+    resource Backend.Portal.Milestone
+    # Meetings System
+    resource Backend.Portal.Meeting
   end
 end

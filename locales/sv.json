@@ -1147,6 +1147,18 @@
         "invoice": "Faktura",
         "other": "Övrigt"
       }
+    },
+    "projectSelector": {
+      "placeholder": "Välj projekt",
+      "noProjects": "Du har inga projekt",
+      "loading": "Laddar projekt...",
+      "error": "Kunde inte hämta projekt"
+    },
+    "projectOverview": {
+      "title": "Projektöversikt",
+      "timeline": "Tidslinje",
+      "meetings": "Möten",
+      "noSelection": "Välj ett projekt för att se tidslinje och möten"
     }
   }
 }

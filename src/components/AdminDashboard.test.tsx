@@ -1,7 +1,27 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { render } from '../test/utils';
 import AdminDashboard from '../../components/dashboards/AdminDashboard';
+
+// Mock ProjectTimeline
+vi.mock('../../components/timeline/ProjectTimeline', () => ({
+  default: () => <div data-testid="project-timeline">Project Timeline</div>,
+}));
+
+// Mock ProjectMeetings
+vi.mock('../../components/meetings/ProjectMeetings', () => ({
+  default: () => <div data-testid="project-meetings">Project Meetings</div>,
+}));
+
+// Mock AdminFormResponseView
+vi.mock('../../components/admin/AdminFormResponseView', () => ({
+  default: () => <div data-testid="admin-form-response-view">Admin Form Response View</div>,
+}));
+
+// Mock AdminFileBrowser
+vi.mock('../../components/admin/AdminFileBrowser', () => ({
+  default: () => <div data-testid="admin-file-browser">Admin File Browser</div>,
+}));
 
 describe('AdminDashboard', () => {
   beforeEach(() => {

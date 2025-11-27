@@ -582,6 +582,246 @@ export const handlers = [
       });
     }
 
+    // Meeting read
+    if (body.action === 'meeting_read') {
+      return HttpResponse.json({
+        success: true,
+        data: [
+          {
+            id: 'meeting-1',
+            title: 'Kickoff Meeting',
+            description: 'Project kickoff',
+            meetingType: 'kickoff',
+            scheduledAt: new Date('2025-11-27T10:00:00Z').toISOString(),
+            durationMinutes: 60,
+            location: 'Conference Room A',
+            meetingUrl: 'https://meet.google.com/abc-defg-hij',
+            notes: 'Discussed project scope',
+            actionItems: { items: ['Review specs', 'Assign tasks'] },
+            attendees: ['John Doe', 'Jane Smith'],
+            status: 'scheduled',
+            projectId: 'project-1',
+          },
+        ],
+      });
+    }
+
+    // Meeting by project
+    if (body.action === 'meeting_by_project') {
+      const projectId = body.args?.projectId;
+      return HttpResponse.json({
+        success: true,
+        data: projectId === 'project-1' ? [
+          {
+            id: 'meeting-1',
+            title: 'Kickoff Meeting',
+            description: 'Project kickoff',
+            meetingType: 'kickoff',
+            scheduledAt: new Date('2025-11-27T10:00:00Z').toISOString(),
+            durationMinutes: 60,
+            location: 'Conference Room A',
+            meetingUrl: 'https://meet.google.com/abc-defg-hij',
+            notes: 'Discussed project scope',
+            actionItems: { items: ['Review specs', 'Assign tasks'] },
+            attendees: ['John Doe', 'Jane Smith'],
+            status: 'scheduled',
+            projectId: 'project-1',
+          },
+        ] : [],
+      });
+    }
+
+    // Meeting upcoming by project
+    if (body.action === 'meeting_upcoming_by_project') {
+      const projectId = body.args?.projectId;
+      return HttpResponse.json({
+        success: true,
+        data: projectId === 'project-1' ? [
+          {
+            id: 'meeting-1',
+            title: 'Kickoff Meeting',
+            status: 'scheduled',
+            projectId: 'project-1',
+          },
+        ] : [],
+      });
+    }
+
+    // Meeting create
+    if (body.action === 'meeting_create') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: 'meeting-new',
+          title: body.input.title,
+          description: body.input.description,
+          meetingType: body.input.meetingType || 'other',
+          scheduledAt: body.input.scheduledAt,
+          durationMinutes: body.input.durationMinutes || 60,
+          location: body.input.location,
+          meetingUrl: body.input.meetingUrl,
+          notes: body.input.notes,
+          actionItems: body.input.actionItems,
+          attendees: body.input.attendees,
+          status: body.input.status || 'scheduled',
+          projectId: body.input.projectId,
+        },
+      });
+    }
+
+    // Meeting update
+    if (body.action === 'meeting_update') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: body.primaryKey,
+          ...body.input,
+        },
+      });
+    }
+
+    // Meeting start
+    if (body.action === 'meeting_start') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: body.primaryKey,
+          status: 'in_progress',
+        },
+      });
+    }
+
+    // Meeting complete
+    if (body.action === 'meeting_complete') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: body.primaryKey,
+          status: 'completed',
+          notes: body.input?.notes,
+          actionItems: body.input?.actionItems,
+        },
+      });
+    }
+
+    // Meeting cancel
+    if (body.action === 'meeting_cancel') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: body.primaryKey,
+          status: 'cancelled',
+        },
+      });
+    }
+
+    // Meeting destroy
+    if (body.action === 'meeting_destroy') {
+      return HttpResponse.json({
+        success: true,
+        data: null,
+      });
+    }
+
+    // Milestone read
+    if (body.action === 'milestone_read') {
+      return HttpResponse.json({
+        success: true,
+        data: [
+          {
+            id: 'milestone-1',
+            title: 'Project Kickoff',
+            description: 'Initial project setup',
+            dueDate: new Date('2025-11-20T00:00:00Z').toISOString(),
+            orderIndex: 0,
+            status: 'completed',
+            completedAt: new Date('2025-11-19T00:00:00Z').toISOString(),
+            projectId: 'project-1',
+          },
+        ],
+      });
+    }
+
+    // Milestone by project
+    if (body.action === 'milestone_by_project') {
+      const projectId = body.args?.projectId;
+      return HttpResponse.json({
+        success: true,
+        data: projectId === 'project-1' ? [
+          {
+            id: 'milestone-1',
+            title: 'Project Kickoff',
+            description: 'Initial project setup',
+            dueDate: new Date('2025-11-20T00:00:00Z').toISOString(),
+            orderIndex: 0,
+            status: 'completed',
+            completedAt: new Date('2025-11-19T00:00:00Z').toISOString(),
+            projectId: 'project-1',
+          },
+        ] : [],
+      });
+    }
+
+    // Milestone create
+    if (body.action === 'milestone_create') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: 'milestone-new',
+          title: body.input.title,
+          description: body.input.description,
+          dueDate: body.input.dueDate,
+          orderIndex: body.input.orderIndex || 0,
+          status: body.input.status || 'pending',
+          completedAt: null,
+          projectId: body.input.projectId,
+        },
+      });
+    }
+
+    // Milestone update
+    if (body.action === 'milestone_update') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: body.primaryKey,
+          ...body.input,
+        },
+      });
+    }
+
+    // Milestone mark completed
+    if (body.action === 'milestone_mark_completed') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: body.primaryKey,
+          status: 'completed',
+          completedAt: new Date().toISOString(),
+        },
+      });
+    }
+
+    // Milestone reopen
+    if (body.action === 'milestone_reopen') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: body.primaryKey,
+          status: 'in_progress',
+          completedAt: null,
+        },
+      });
+    }
+
+    // Milestone destroy
+    if (body.action === 'milestone_destroy') {
+      return HttpResponse.json({
+        success: true,
+        data: null,
+      });
+    }
+
     return HttpResponse.json({ success: false, errors: [{ message: 'Unknown action' }] }, { status: 400 });
   }),
 ];
