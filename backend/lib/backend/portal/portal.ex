@@ -24,6 +24,9 @@ defmodule Backend.Portal do
       # Priority management
       rpc_action :project_set_priority, :set_priority
       rpc_action :project_toggle_priority, :toggle_priority
+      # Delivery and review
+      rpc_action :project_mark_delivered, :mark_delivered
+      rpc_action :project_submit_review, :submit_review
     end
 
     resource Backend.Portal.Ticket do
@@ -43,6 +46,7 @@ defmodule Backend.Portal do
     resource Backend.Portal.Comment do
       rpc_action :comment_read, :read
       rpc_action :comment_create, :create
+      rpc_action :comment_by_ticket, :by_ticket
     end
 
     resource Backend.Portal.TimeEntry do
@@ -53,6 +57,12 @@ defmodule Backend.Portal do
     resource Backend.Portal.Document do
       rpc_action :document_read, :read
       rpc_action :document_create, :create
+      rpc_action :document_by_project, :by_project
+      rpc_action :document_by_ticket, :by_ticket
+      rpc_action :document_by_category, :by_category
+      rpc_action :document_version_history, :version_history
+      rpc_action :document_latest_only, :latest_only
+      rpc_action :document_create_new_version, :create_new_version
     end
 
     resource Backend.Portal.Invitation do

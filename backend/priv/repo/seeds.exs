@@ -89,4 +89,89 @@ case User
     IO.puts("Demo customer already exists: #{existing.email}")
 end
 
+# Create test projects
+alias Backend.Portal.Project
+
+# Project 1: Draft project
+case Project
+     |> filter(name == "Website Redesign")
+     |> Ash.read_one(authorize?: false) do
+  {:ok, nil} ->
+    IO.puts("Creating test project: Website Redesign...")
+    {:ok, _project} =
+      Project
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Website Redesign",
+        description: "Complete redesign of company website with modern UI/UX",
+        company_id: siteflow_company.id,
+        budget: Decimal.new("250000"),
+        start_date: ~D[2025-01-15],
+        target_end_date: ~D[2025-04-30]
+      })
+      |> Ash.create(authorize?: false)
+    IO.puts("Project created: Website Redesign")
+
+  {:ok, existing} ->
+    IO.puts("Project already exists: #{existing.name}")
+end
+
+# Project 2: In-progress project
+case Project
+     |> filter(name == "E-commerce Platform")
+     |> Ash.read_one(authorize?: false) do
+  {:ok, nil} ->
+    IO.puts("Creating test project: E-commerce Platform...")
+    {:ok, project} =
+      Project
+      |> Ash.Changeset.for_create(:create, %{
+        name: "E-commerce Platform",
+        description: "Custom e-commerce solution with inventory management",
+        company_id: siteflow_company.id,
+        budget: Decimal.new("500000"),
+        start_date: ~D[2024-11-01],
+        target_end_date: ~D[2025-06-30]
+      })
+      |> Ash.create(authorize?: false)
+
+    # Transition to in_progress state
+    {:ok, _} =
+      project
+      |> Ash.Changeset.for_update(:submit)
+      |> Ash.update(authorize?: false)
+
+    project_reloaded = Ash.get!(Project, project.id, authorize?: false)
+    {:ok, _} =
+      project_reloaded
+      |> Ash.Changeset.for_update(:approve)
+      |> Ash.update(authorize?: false)
+
+    IO.puts("Project created: E-commerce Platform (in_progress)")
+
+  {:ok, existing} ->
+    IO.puts("Project already exists: #{existing.name}")
+end
+
+# Project 3: Small maintenance project
+case Project
+     |> filter(name == "Mobile App Maintenance")
+     |> Ash.read_one(authorize?: false) do
+  {:ok, nil} ->
+    IO.puts("Creating test project: Mobile App Maintenance...")
+    {:ok, _project} =
+      Project
+      |> Ash.Changeset.for_create(:create, %{
+        name: "Mobile App Maintenance",
+        description: "Monthly maintenance and bug fixes for iOS and Android apps",
+        company_id: siteflow_company.id,
+        budget: Decimal.new("50000"),
+        start_date: ~D[2025-01-01],
+        target_end_date: ~D[2025-12-31]
+      })
+      |> Ash.create(authorize?: false)
+    IO.puts("Project created: Mobile App Maintenance")
+
+  {:ok, existing} ->
+    IO.puts("Project already exists: #{existing.name}")
+end
+
 IO.puts("\nSeeding complete!")

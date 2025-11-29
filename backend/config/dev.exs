@@ -69,3 +69,40 @@ config :phoenix_live_view,
 
 # Ash development settings
 config :ash, :disable_async?, true
+
+# AWS S3 Configuration for file storage
+# For development: You can use AWS S3, MinIO, or LocalStack
+# Set environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET, AWS_REGION
+config :ex_aws,
+  access_key_id: System.get_env("AWS_ACCESS_KEY_ID") || "minioadmin",
+  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY") || "minioadmin",
+  region: System.get_env("AWS_REGION") || "us-east-1",
+  json_codec: Jason,
+  http_client: ExAws.Request.Hackney
+
+config :ex_aws, :s3,
+  scheme: System.get_env("AWS_S3_SCHEME") || "https://",
+  host: System.get_env("AWS_S3_HOST") || "s3.amazonaws.com",
+  region: System.get_env("AWS_REGION") || "us-east-1"
+
+# S3 bucket name for file uploads
+config :backend, :s3_bucket, System.get_env("AWS_S3_BUCKET") || "siteflow-dev-uploads"
+
+# File upload settings
+config :backend, :file_upload,
+  max_file_size: 50 * 1024 * 1024,  # 50 MB
+  allowed_mime_types: [
+    # Images
+    "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+    # Documents
+    "application/pdf", "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    # Text
+    "text/plain", "text/csv", "text/markdown",
+    # Archives
+    "application/zip", "application/x-rar-compressed", "application/x-7z-compressed"
+  ]

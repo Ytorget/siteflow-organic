@@ -1,7 +1,7 @@
 defmodule BackendWeb.RAGController do
   use BackendWeb, :controller
 
-  alias Backend.AI.{RAGService, DocumentGenerator}
+  alias Backend.AI.{RAGService, DocumentGenerator, KnowledgeManager}
   alias Backend.Portal.Project
   alias Backend.Workers.{DocumentGenerationWorker, EmbeddingWorker}
 
@@ -141,21 +141,127 @@ defmodule BackendWeb.RAGController do
 
   @doc """
   POST /api/rag/projects/:id/knowledge
-  Lägg till manuell kunskap till RAG
+  Lägg till manuell kunskap till RAG med AI-assisterad strukturering
   """
-  def add_knowledge(conn, %{"id" => project_id, "content" => content, "title" => title}) do
+  def add_knowledge(conn, %{"id" => project_id} = params) do
     user = conn.assigns.current_user
+    content = Map.get(params, "content")
+    title = Map.get(params, "title")
+    category = Map.get(params, "category")
+    skip_ai = Map.get(params, "skip_ai", false)
 
-    # Implementation med ManualKnowledgeEntry resource
-    json(conn, %{status: "success", message: "Knowledge added"})
+    if is_nil(content) or content == "" do
+      conn
+      |> put_status(:bad_request)
+      |> json(%{error: "content is required"})
+    else
+      opts = []
+      opts = if title, do: Keyword.put(opts, :title, title), else: opts
+      opts = if category, do: Keyword.put(opts, :category, category), else: opts
+      opts = Keyword.put(opts, :skip_ai, skip_ai)
+
+      case KnowledgeManager.add_knowledge(project_id, content, user.id, opts) do
+      {:ok, entry} ->
+        Logger.info("Knowledge entry created: #{entry.id}")
+
+        conn
+        |> put_status(:created)
+        |> json(%{
+          status: "success",
+          message: "Knowledge added and embedded",
+          entry: %{
+            id: entry.id,
+            title: entry.title,
+            content: entry.content,
+            category: entry.category,
+            metadata: entry.metadata,
+            inserted_at: entry.inserted_at
+          }
+        })
+
+      {:error, changeset} ->
+        Logger.error("Failed to add knowledge: #{inspect(changeset.errors)}")
+
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to add knowledge", details: inspect(changeset.errors)})
+      end
+    end
   end
 
   @doc """
   GET /api/rag/projects/:id/knowledge
   Hämta all manuell kunskap för ett projekt
   """
-  def list_knowledge(conn, %{"id" => project_id}) do
-    json(conn, %{knowledge: []})
+  def list_knowledge(conn, %{"id" => project_id} = params) do
+    category = Map.get(params, "category")
+
+    opts = if category, do: [category: category], else: []
+
+    case KnowledgeManager.list_knowledge(project_id, opts) do
+      {:ok, entries} ->
+        json(conn, %{
+          knowledge: Enum.map(entries, fn entry ->
+            %{
+              id: entry.id,
+              title: entry.title,
+              content: entry.content,
+              raw_input: entry.raw_input,
+              category: entry.category,
+              metadata: entry.metadata,
+              created_by_id: entry.created_by_id,
+              inserted_at: entry.inserted_at,
+              updated_at: entry.updated_at
+            }
+          end)
+        })
+
+      {:error, reason} ->
+        Logger.error("Failed to list knowledge: #{inspect(reason)}")
+
+        conn
+        |> put_status(500)
+        |> json(%{error: "Failed to retrieve knowledge"})
+    end
+  end
+
+  @doc """
+  GET /api/rag/projects/:id/knowledge/stats
+  Hämta statistik om kunskapsbasen
+  """
+  def knowledge_stats(conn, %{"id" => project_id}) do
+    case KnowledgeManager.get_stats(project_id) do
+      {:ok, stats} ->
+        json(conn, stats)
+
+      {:error, _reason} ->
+        conn
+        |> put_status(500)
+        |> json(%{error: "Failed to get statistics"})
+    end
+  end
+
+  @doc """
+  DELETE /api/rag/projects/:id/knowledge/:knowledge_id
+  Ta bort en kunskapspost
+  """
+  def delete_knowledge(conn, %{"id" => _project_id, "knowledge_id" => knowledge_id}) do
+    user = conn.assigns.current_user
+
+    case KnowledgeManager.delete_knowledge(knowledge_id, user) do
+      :ok ->
+        send_resp(conn, :no_content, "")
+
+      {:error, %Ash.Error.Forbidden{}} ->
+        conn
+        |> put_status(:forbidden)
+        |> json(%{error: "You don't have permission to delete this entry"})
+
+      {:error, _reason} ->
+        conn
+        |> put_status(500)
+        |> json(%{error: "Failed to delete knowledge entry"})
+    end
   end
 
   @doc """

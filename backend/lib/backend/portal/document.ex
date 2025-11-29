@@ -46,7 +46,34 @@ defmodule Backend.Portal.Document do
     defaults [:read]
 
     create :create do
-      accept [:name, :description, :file_path, :file_size, :mime_type, :project_id, :category]
+      accept [:name, :description, :file_path, :file_size, :mime_type, :project_id, :ticket_id, :category, :version, :parent_document_id, :is_latest]
+      change relate_actor(:uploaded_by)
+    end
+
+    create :create_new_version do
+      accept [:name, :description, :file_path, :file_size, :mime_type, :project_id, :ticket_id, :category]
+      argument :parent_id, :uuid, allow_nil?: false
+
+      change fn changeset, _context ->
+        parent_id = Ash.Changeset.get_argument(changeset, :parent_id)
+
+        # Get parent document to increment version
+        case Ash.get(Backend.Portal.Document, parent_id, authorize?: false) do
+          {:ok, parent} ->
+            # Mark parent as not latest
+            Ash.update(parent, %{is_latest: false}, authorize?: false)
+
+            # Set new version number
+            changeset
+            |> Ash.Changeset.change_attribute(:version, parent.version + 1)
+            |> Ash.Changeset.change_attribute(:parent_document_id, parent_id)
+            |> Ash.Changeset.change_attribute(:is_latest, true)
+
+          {:error, _} ->
+            Ash.Changeset.add_error(changeset, "Parent document not found")
+        end
+      end
+
       change relate_actor(:uploaded_by)
     end
 
@@ -58,9 +85,32 @@ defmodule Backend.Portal.Document do
       filter expr(project_id == ^arg(:project_id))
     end
 
+    read :by_ticket do
+      argument :ticket_id, :uuid, allow_nil?: false
+      filter expr(ticket_id == ^arg(:ticket_id))
+    end
+
     read :by_category do
       argument :category, :atom, allow_nil?: false
       filter expr(category == ^arg(:category))
+    end
+
+    read :version_history do
+      argument :document_id, :uuid, allow_nil?: false
+
+      filter expr(
+        id == ^arg(:document_id) or
+        parent_document_id == ^arg(:document_id) or
+        exists(parent_document, id == ^arg(:document_id))
+      )
+
+      prepare fn query, _context ->
+        Ash.Query.sort(query, version: :desc)
+      end
+    end
+
+    read :latest_only do
+      filter expr(is_latest == true)
     end
   end
 
@@ -96,6 +146,20 @@ defmodule Backend.Portal.Document do
       public? true
     end
 
+    attribute :version, :integer do
+      default 1
+      allow_nil? false
+      public? true
+      description "Version number of this document"
+    end
+
+    attribute :is_latest, :boolean do
+      default true
+      allow_nil? false
+      public? true
+      description "Whether this is the latest version"
+    end
+
     create_timestamp :inserted_at
     update_timestamp :updated_at
   end
@@ -106,9 +170,25 @@ defmodule Backend.Portal.Document do
       public? true
     end
 
+    belongs_to :ticket, Backend.Portal.Ticket do
+      public? true
+      description "Optional ticket this document is attached to"
+    end
+
     belongs_to :uploaded_by, Backend.Accounts.User do
       allow_nil? false
       public? true
+    end
+
+    belongs_to :parent_document, Backend.Portal.Document do
+      public? true
+      description "Parent document if this is a new version"
+    end
+
+    has_many :versions, Backend.Portal.Document do
+      destination_attribute :parent_document_id
+      public? true
+      description "All versions of this document"
     end
   end
 end

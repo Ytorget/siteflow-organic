@@ -78,8 +78,17 @@ defmodule Backend.MixProject do
       {:oban, "~> 2.18"},     # Background job processing
       {:req, "~> 0.5"},       # HTTP client for Gemini API
 
+      # File Storage (AWS S3)
+      {:ex_aws, "~> 2.5"},
+      {:ex_aws_s3, "~> 2.5"},
+      {:sweet_xml, "~> 0.7"},
+      {:hackney, "~> 1.20"},
+
       # Tidewave MCP Server for AI integration
-      {:tidewave, "~> 0.5", only: :dev}
+      {:tidewave, "~> 0.5", only: :dev},
+
+      # Rate limiting
+      {:hammer, "~> 6.2"}
     ]
   end
 

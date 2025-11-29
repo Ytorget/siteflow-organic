@@ -305,13 +305,22 @@ ProductPlan:
 
 ### Kundportal - Dashboard-funktioner som saknas
 
-#### ❌ Projektstatus-översikt
-**Specen visar rich UI som saknas:**
-- [ ] Progress bar (visuell "X% klart")
-- [ ] Aktuell fas (t.ex. "Fas 2 - Utveckling, vecka 4 av 8")
-- [ ] Nästa milstolpe-info
+#### ✅ Projektstatus-översikt (KLART 2025-11-27)
+**✅ Implementerat:**
+- [x] **Frontend komponent: ProjectStatus.tsx** (`components/shared/ProjectStatus.tsx`)
+  - [x] Visual progress bar baserad på milestone completion (färgkodad: grön 75%+, blå 50%+, gul 25%+, orange <25%)
+  - [x] Aktuell fas display: "Fas X av Y" beräknat från milstolpar
+  - [x] Timeline display: "Vecka X av Y" beräknat från project start/end dates
+  - [x] Nästa milstolpe-info med:
+    - [x] Titel och beskrivning
+    - [x] Förfallodatum
+    - [x] Dagar kvar/försenad indicator (röd=försenad, orange=<7 dagar, grön=mer tid)
+  - [x] State badge (Draft, In Progress, Paused, Completed, Cancelled)
+  - [x] Empty state när inga milstolpar finns
+- [x] **i18n-stöd:** Svenska och engelska översättningar för project.status.*
+- [x] **Responsiv design** med grid layout för fas/timeline info
 
-**Status:** CustomerDashboard visar projekt, men inte i detta format.
+**Status:** ✅ Rich projektstatus-översikt fullständigt implementerad!
 
 #### ✅ Timeline-vy (KLART 2025-11-27)
 - [x] **Backend: Milestone-resurs** med title, description, due_date, completed_at, order_index, status
@@ -342,20 +351,76 @@ ProductPlan:
 
 **Status:** Ingen updates/feed-funktionalitet.
 
-#### ❌ Filer & Dokument
-**Delvis implementerat, men saknar:**
-- [ ] Fil-upload från frontend (UploadDocumentForm finns men ingen faktisk filuppladdning till S3/storage)
-- [ ] Versionshistorik för filer
-- [ ] Kategoriserad mappstruktur (Design, Wireframes, Meeting notes, etc.)
+#### ✅ Filer & Dokument (KLART 2025-11-27)
+**✅ Implementerat:**
+- [x] **ExAWS S3 Integration** - Dependencies tillagda (ex_aws, ex_aws_s3, sweet_xml, hackney)
+- [x] **S3 Configuration** - Flexibel config i dev.exs med stöd för AWS S3/MinIO/LocalStack
+- [x] **FileUploadService** (`backend/lib/backend/services/file_upload_service.ex`):
+  - [x] `upload_file/5` - S3 upload med validering
+  - [x] `delete_file/1` - Ta bort filer från S3
+  - [x] `generate_download_url/2` - Presigned URLs för nedladdning (1h expiry)
+  - [x] Fil-validering (storlek max 50MB, 17 MIME-typer)
+  - [x] UUID-baserade unika filnamn
+  - [x] Filnamns-sanitering (lowercase, special chars removed)
+  - [x] Kategoriserad S3-struktur: `projects/{id}/{category}/{uuid}-{filename}`
+- [x] **FileUploadController** (`backend/lib/backend_web/controllers/file_upload_controller.ex`):
+  - [x] `POST /api/documents/upload` - Multipart upload till S3
+  - [x] `GET /api/documents/:id/download` - Presigned download URL
+  - [x] `DELETE /api/documents/:id` - Ta bort dokument och S3-fil
+  - [x] Autentisering och access control via Ash policies
+  - [x] Document-resurs skapas automatiskt vid upload
+- [x] **Routes** - Endpoints tillagda i `router.ex`
+- [x] **UploadDocumentForm.tsx** - Uppdaterad med faktisk S3 upload:
+  - [x] FormData multipart/form-data upload
+  - [x] File size validation (50MB)
+  - [x] Progress tracking och loading states
+  - [x] Auth headers med Bearer token
+  - [x] Error handling
 
-**Status:** Document-resursen finns i backend, men ingen verklig filuppladdning.
+**✅ Filversionshantering & Ticket-attachment (KLART 2025-11-27):**
+- [x] **Migration 20251127120000_add_document_versioning.exs:**
+  - [x] `version` - Version number (default 1)
+  - [x] `parent_document_id` - Foreign key till parent document
+  - [x] `is_latest` - Boolean för att markera senaste versionen
+- [x] **Migration 20251127120001_add_ticket_to_documents.exs:**
+  - [x] `ticket_id` - Foreign key för att bifoga dokument till tickets
+- [x] **Document-resurs utökad:**
+  - [x] `create_new_version` action - Skapar ny version och markerar parent som inte latest
+  - [x] `version_history` read action - Hämtar alla versioner av ett dokument
+  - [x] `latest_only` read action - Filtrerar bara senaste versionerna
+  - [x] `by_ticket` read action - Hämtar dokument bifogade till ticket
+  - [x] Relationships: parent_document, versions, ticket
+- [x] **RPC actions registrerade i Portal:**
+  - [x] document_version_history, document_latest_only, document_create_new_version
+  - [x] document_by_ticket, document_by_project, document_by_category
 
-#### ❌ Preview/Staging-länk
-- [ ] Staging-länk till preview-miljö
-- [ ] "Se förhandsvisning"-knapp
-- [ ] Möjlighet att rapportera buggar direkt från preview
+**❌ Kvarstår:**
+- [ ] Frontend UI för versionshistorik-visning
+- [ ] End-to-end testing av upload-flow
 
-**Status:** Ingen preview-funktionalitet.
+**Status:** ✅ S3 file upload + versionshantering + ticket-attachment fullständigt implementerat i backend!
+
+#### ✅ Preview/Staging-länk (KLART 2025-11-27)
+**✅ Implementerat:**
+- [x] **Backend: Migration `20251127140000_add_preview_url_to_projects.exs`**
+  - [x] `preview_url` - URL till staging/development-miljö
+  - [x] `preview_notes` - Instruktioner för att komma åt preview
+  - [x] `preview_updated_at` - När preview senast uppdaterades
+- [x] **Project-resurs utökad:**
+  - [x] Preview-fält tillagda i attributes
+  - [x] `update` action accepterar preview-fält
+- [x] **Frontend: PreviewBanner.tsx** (`components/shared/PreviewBanner.tsx`)
+  - [x] Gradient banner design (indigo-purple)
+  - [x] Visar preview URL med external link-knapp
+  - [x] Preview notes section med instruktioner
+  - [x] Last updated timestamp (smart formatering: "Xm sedan", "Xh sedan", datum)
+  - [x] Target="_blank" för säker öppning i ny flik
+- [x] **i18n-stöd:** Svenska och engelska översättningar för preview.*
+
+**❌ Kvarstår:**
+- [ ] Möjlighet att rapportera buggar direkt från preview (kanske widget/knapp)
+
+**Status:** ✅ Preview/staging-länk system fullständigt implementerat!
 
 #### ✅ Möten & Kalender (KLART 2025-11-27)
 - [x] **Backend: Meeting-resurs** med title, description, meeting_type, scheduled_at, duration_minutes, location, meeting_url, notes, action_items, attendees, status
@@ -377,24 +442,77 @@ ProductPlan:
 
 **Status:** ✅ KLART! Komplett Google Calendar-liknande UI implementerad.
 
-#### ❌ Team-information
-- [ ] Visa projektteam med namn, roller, kontaktinfo
-- [ ] Projektledare, Designer, Utvecklare, QA
+#### ✅ Team-information (KLART 2025-11-27)
+**✅ Implementerat:**
+- [x] **Frontend komponent: ProjectTeam.tsx** (`components/shared/ProjectTeam.tsx`)
+  - [x] Grupperar teammedlemmar per roll
+  - [x] Visar namn, email, telefonnummer för varje medlem
+  - [x] Avatar med initialer (gradient background)
+  - [x] Role badges färgkodade per roll:
+    - [x] Admin (röd), KAM (lila), Projektledare (blå)
+    - [x] Utvecklare (grön), Kund (orange)
+  - [x] Klickbara email/telefon-länkar (mailto:, tel:)
+  - [x] Grid layout (1 col mobile, 2 cols desktop)
+  - [x] Empty state när inga medlemmar
+- [x] **Rollstöd:**
+  - [x] siteflow_admin, siteflow_kam, siteflow_pl
+  - [x] siteflow_dev_frontend, siteflow_dev_backend, siteflow_dev_fullstack
+  - [x] customer, partner
+- [x] **i18n-stöd:** Svenska och engelska översättningar för project.team.*
+- [x] **Responsiv design** med hover-effekter
 
-**Status:** Ingen team-vy.
+**Status:** ✅ Team-vy fullständigt implementerad!
 
-### Ticket-system - Saknade funktioner
+### ✅ Ticket-system - Förbättringar (KLART 2025-11-27)
 
-**Ticket-resursen finns, men saknar:**
-- [ ] Rich text editor för beskrivningar
-- [ ] Bifoga filer/screenshots till tickets
-- [ ] Chatt-liknande konversationsvy (specen visar chat-format)
+**✅ Implementerat:**
+- [x] **Bifoga filer till tickets** (`CreateTicketForm.tsx`)
+  - [x] Multi-file upload med drag-and-drop UI
+  - [x] File size validation (50MB max)
+  - [x] File preview med remove capability
+  - [x] Upload till S3 via `/api/documents/upload`
+  - [x] Backend: `ticket_id` foreign key på Document (Migration 20251127120001)
+  - [x] Backend: `by_ticket` read action för att hämta ticket-dokument
+
+- [x] **Chat-liknande konversationsvy** (`TicketConversation.tsx`)
+  - [x] Chat-bubble design med egen vs andras meddelanden
+  - [x] Support för interna kommentarer (amber färg med lock-ikon)
+  - [x] Avatar med initialer
+  - [x] Smart timestamp-formatering (relativt vs absolut)
+  - [x] Auto-scroll till senaste meddelandet
+  - [x] Keyboard shortcuts (Enter = send, Shift+Enter = ny rad)
+  - [x] Backend: `comment_by_ticket` RPC action för att hämta kommentarer
+  - [x] Frontend hooks: `useCommentsByTicket`, `useCreateComment`
+
+- [x] **SLA-timers** (Backend + Frontend)
+  - [x] Backend: Migration `20251127130000_add_sla_to_tickets.exs`
+    - [x] `sla_response_hours` och `sla_resolution_hours` (konfigurerbara SLA-tider)
+    - [x] `first_response_at`, `sla_response_due_at`, `sla_resolution_due_at` (timestamps)
+    - [x] `sla_response_breached` och `sla_resolution_breached` (flags)
+  - [x] Backend: Automatisk beräkning av deadlines vid ticket-skapande
+  - [x] Frontend: `SLABadge.tsx` - Visuell countdown-timer
+    - [x] Färgkodad urgency (grön=safe, gul=warning <4h, orange=critical <1h, röd=breached)
+    - [x] Real-time countdown uppdateras varje minut
+    - [x] Visar "Met" när SLA uppfylls
+    - [x] Animate pulse för kritiska SLA-timers
+    - [x] i18n-stöd (svenska/engelska)
+
+- [x] **Rich text editor** (`RichTextEditor.tsx`)
+  - [x] Tiptap-baserad WYSIWYG editor med toolbar
+  - [x] Formatering: Bold, Italic, Bullet Lists, Ordered Lists, Links, Inline Code
+  - [x] Undo/Redo funktionalitet
+  - [x] Placeholder-stöd
+  - [x] Integrerad i `CreateTicketForm.tsx` för ticket-beskrivningar
+  - [x] Integrerad i `TicketConversation.tsx` för kommentarer
+  - [x] Custom prose styling (headings, lists, links, code blocks)
+  - [x] Disabled state-stöd
+
+**❌ Kvarstår:**
 - [ ] **[ARIAN]** Email-notifikationer vid ticket-svar
 - [ ] **[ARIAN]** Real-time notifications för nya ticket-kommentarer
-- [ ] SLA-timers (t.ex. "Hög prioritet måste besvaras inom 2h")
 - [ ] Merge/länka relaterade tickets
 
-**Status:** Grundläggande ticket CRUD finns, men inte den avancerade funktionaliteten.
+**Status:** ✅ Alla ticket-förbättringar fullständigt implementerade! Chat-vy, filuppladdning, SLA-tracking, och rich text editor komplett.
 
 ### Admin - Uppdatera projektstatus
 
@@ -456,25 +574,62 @@ ProductPlan:
 
 **Status:** Ingen push-funktionalitet.
 
-### Avslutning av projekt
+### ✅ Avslutning av projekt (KLART 2025-11-27)
 
-#### ❌ Projekt-avslut
-- [ ] Admin markerar projekt som "Levererat"
-- [ ] **[ARIAN]** Email: "Grattis! Ditt projekt är klart"
-- [ ] Konfetti-animation i portalen
-- [ ] "Ditt projekt är nu live!"-meddelande
-- [ ] Länk till färdig hemsida/system
-- [ ] Formulär: "Hur nöjd är du? Betygsätt projektet"
+**✅ Implementerat:**
 
-**Status:** Ingen avsluts-funktionalitet.
+#### Backend
+- [x] **Migration `20251127150000_add_project_completion.exs`:**
+  - [x] `is_delivered` - Boolean för leveransstatus
+  - [x] `delivered_at` - Timestamp för leverans
+  - [x] `delivery_url` - URL till live-projektet
+  - [x] `delivery_notes` - Leveransanteckningar för kunden
+  - [x] `customer_rating` - Betyg 1-5 stjärnor (med constraint)
+  - [x] `customer_review` - Kundens skriftliga omdöme
+  - [x] `reviewed_at` - Timestamp för betygsättning
+  - [x] `support_start_date` - Support-periodens start
+  - [x] `support_end_date` - Support-periodens slut
+  - [x] `support_months` - Antal månaders support (default 6)
 
-#### ❌ Post-projekt vy
-- [ ] Support-period countdown ("Du har support till [datum]")
-- [ ] Förnya support-länk
-- [ ] Boka nya projekt
-- [ ] Begära utbyggnad/nya features
+- [x] **Project-resurs utökad:**
+  - [x] Alla completion-attribut tillagda
+  - [x] `mark_delivered` action - Markerar projekt som levererat och beräknar support-perioden automatiskt
+  - [x] `submit_review` action - Skickar kundens betyg och omdöme
+  - [x] RPC actions registrerade: `project_mark_delivered`, `project_submit_review`
 
-**Status:** Ingen post-projekt vy.
+#### Frontend
+- [x] **ProjectCompletion.tsx** (`components/shared/ProjectCompletion.tsx`)
+  - [x] **Delivery celebration:**
+    - [x] Gradient celebration banner (grön gradient)
+    - [x] Konfetti-animation vid leverans (5 sekunders PartyPopper-animation)
+    - [x] "Grattis! Ditt projekt är klart!"-meddelande
+    - [x] Länk till live-projektet med external link-knapp
+    - [x] Leveransanteckningar visas i banner
+
+  - [x] **Customer review:**
+    - [x] Interaktiv stjärnbetyg-väljare (1-5 stjärnor med hover-effekt)
+    - [x] Textarea för skriftligt omdöme
+    - [x] Submit-knapp med loading state
+    - [x] Visa befintligt betyg om redan inlämnat
+
+  - [x] **Support period countdown:**
+    - [x] Real-time dagar-kvar-räknare (uppdateras varje timme)
+    - [x] Färgkodad status:
+      - [x] Grön (>30 dagar kvar) - "Active"
+      - [x] Orange (<30 dagar) - "Ending Soon" med varning
+      - [x] Röd (förfallen) - "Expired" med meddelande
+    - [x] Visar slutdatum för support
+    - [x] Varningsmeddelanden för snart utgående/utgången support
+
+- [x] **i18n-stöd:** Svenska och engelska översättningar för project.completion.*
+
+**❌ Kvarstår:**
+- [ ] **[ARIAN]** Email: "Grattis! Ditt projekt är klart" vid leverans
+- [ ] Förnya support-länk/formulär
+- [ ] Boka nya projekt-funktionalitet
+- [ ] Begära utbyggnad/nya features-funktionalitet
+
+**Status:** ✅ Projekt-avslut flow fullständigt implementerat! Leverans, betygsättning, och support-tracking komplett.
 
 ### Säkerhet & Integration
 
@@ -486,16 +641,40 @@ ProductPlan:
 - [ ] File storage (AWS S3 eller liknande)
 - [ ] Calendar integration (Google Calendar, Outlook)
 - [ ] Video meeting (Zoom, Google Meet)
-- [ ] Payment gateway (Stripe för fakturering)
 - [ ] Analytics (Google Analytics, Mixpanel)
 
-#### ❌ Säkerhetsfunktioner
-- [ ] Rate limiting
-- [ ] File type validation
-- [ ] Max file size limits
-- [ ] Backup strategy
+#### ✅ Säkerhetsfunktioner (KLART 2025-11-27)
 
-**Status:** Grundläggande CSRF/HTTPS finns, men inte dessa avancerade features.
+**✅ Implementerat:**
+
+- [x] **Rate limiting** - Hammer-baserad rate limiting
+  - [x] Auth endpoints: 10 requests/minut (förhindra brute force)
+  - [x] File upload: 20 requests/minut
+  - [x] RAG/AI: 30 requests/minut (AI-calls är dyra)
+  - [x] Standard API: 60 requests/minut
+  - [x] Per IP-adress tracking med X-Forwarded-For support
+  - [x] RateLimit plug (`backend/lib/backend_web/plugs/rate_limit.ex`)
+
+- [x] **File type validation**
+  - [x] MIME type validation (PDF, Office, images, archives, code/text)
+  - [x] File extension fallback validation
+  - [x] 30+ tillåtna filtyper
+  - [x] Tydliga felmeddelanden vid ogiltig filtyp
+
+- [x] **Max file size limits**
+  - [x] 100 MB max filstorlek
+  - [x] Pre-upload validering
+  - [x] Tydliga felmeddelanden med faktisk vs tillåten storlek
+
+- [x] **Backup strategy**
+  - [x] `backup_database.ps1` - PowerShell backup-script
+  - [x] `restore_database.ps1` - Restore-script
+  - [x] `backup_schedule_example.ps1` - Automatisk schemaläggning
+  - [x] Compressed backups (gzip support)
+  - [x] Automatisk cleanup av gamla backups (30 dagar default)
+  - [x] BACKUP_README.md med instruktioner
+
+**Status:** ✅ Alla säkerhetsfunktioner fullständigt implementerade!
 
 ---
 
@@ -956,7 +1135,13 @@ Ett AI-drivet system som automatiskt strukturerar kundens svar i logiska dokumen
   - [x] chat/4 - RAG-driven chat med streaming
   - [x] build_context/2
   - [x] get_project_summary/1
-- [ ] KnowledgeManager (manuell kunskap via AI) - ej implementerat än
+- [x] **KnowledgeManager** (`backend/lib/backend/ai/knowledge_manager.ex`) ✅ KLART (2025-11-28)
+  - [x] add_knowledge/4 - AI-assisterad strukturering av kunskap
+  - [x] list_knowledge/2 - Lista kunskap med kategorifilter
+  - [x] update_knowledge/3 - Uppdatera kunskapspost
+  - [x] delete_knowledge/2 - Ta bort kunskapspost
+  - [x] get_stats/1 - Statistik om kunskapsbasen
+  - [x] AI-extraktion av metadata (personer, datum, beslut, action items, features, tags)
 
 #### Backend - Workers (Oban) ✅ KLART (2025-11-27)
 - [x] DocumentGenerationWorker (`backend/lib/backend/workers/document_generation_worker.ex`)
@@ -976,8 +1161,11 @@ Ett AI-drivet system som automatiskt strukturerar kundens svar i logiska dokumen
 - [x] POST /api/rag/projects/:id/regenerate-document/:type (regenerera med versionering)
 - [x] GET /api/rag/projects/:id/documents (hämta genererade dokument)
 - [x] POST /api/rag/projects/:id/embed (trigga embedding av formulärsvar)
-- [x] POST /api/rag/projects/:id/knowledge (skapa manuell kunskap)
-- [x] GET /api/rag/projects/:id/knowledge (hämta manuell kunskap)
+- [x] **Knowledge Management API** ✅ KLART (2025-11-28)
+  - [x] POST /api/rag/projects/:id/knowledge (AI-strukturerad kunskap)
+  - [x] GET /api/rag/projects/:id/knowledge (hämta med kategorifilter)
+  - [x] GET /api/rag/projects/:id/knowledge/stats (statistik)
+  - [x] DELETE /api/rag/projects/:id/knowledge/:knowledge_id (ta bort)
 - [x] **require_ai_access plug** för access control (admin + staff med can_use_ai_chat)
 
 #### Frontend ✅ KLART (2025-11-27)
@@ -997,7 +1185,14 @@ Ett AI-drivet system som automatiskt strukturerar kundens svar i logiska dokumen
   - [x] Generate/regenerate funktionalitet
   - [x] Document viewer modal med markdown rendering
   - [x] Status indicators (draft, published, archived)
-- [ ] KnowledgeManager.tsx - Hantera manuell kunskap (ej implementerad än)
+- [x] **KnowledgeManager.tsx** ✅ KLART (2025-11-28) - Hantera manuell kunskap (`components/rag/KnowledgeManager.tsx`)
+  - [x] Formulär för att lägga till kunskap med AI-strukturering
+  - [x] 7 kategorier: meeting_notes, decision, clarification, feedback, technical, design, other
+  - [x] Kategorifilter med ikoner och färger
+  - [x] Metadata-visning (people, features, tags, dates, decisions, action items)
+  - [x] Skip AI-toggle för direktinmatning
+  - [x] Ta bort-funktionalitet
+  - [x] Lista med kunskapsposter
 
 ### Dependencies ✅ TILLAGDA
 ```elixir

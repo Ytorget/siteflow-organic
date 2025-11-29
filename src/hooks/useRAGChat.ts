@@ -51,7 +51,7 @@ export function useRAGChat({ projectId, onError }: UseRAGChatOptions) {
         // Create abort controller for this request
         abortControllerRef.current = new AbortController();
 
-        const response = await fetch(`http://localhost:3000/api/rag/projects/${projectId}/chat`, {
+        const response = await fetch(`/api/rag/projects/${projectId}/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

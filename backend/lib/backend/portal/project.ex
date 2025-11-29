@@ -79,7 +79,8 @@ defmodule Backend.Portal.Project do
     end
 
     update :update do
-      accept [:name, :description, :budget, :target_end_date]
+      accept [:name, :description, :budget, :target_end_date, :preview_url, :preview_notes, :preview_updated_at,
+              :delivery_url, :delivery_notes, :support_months]
     end
 
     update :submit do
@@ -124,6 +125,27 @@ defmodule Backend.Portal.Project do
         current = Ash.Changeset.get_attribute(changeset, :is_priority) || false
         Ash.Changeset.change_attribute(changeset, :is_priority, !current)
       end
+    end
+
+    update :mark_delivered do
+      require_atomic? false
+      accept [:delivery_url, :delivery_notes, :support_months]
+      change set_attribute(:is_delivered, true)
+      change set_attribute(:delivered_at, &DateTime.utc_now/0)
+      change fn changeset, _context ->
+        # Calculate support dates based on delivery
+        support_months = Ash.Changeset.get_attribute(changeset, :support_months) || 6
+        today = Date.utc_today()
+
+        changeset
+        |> Ash.Changeset.change_attribute(:support_start_date, today)
+        |> Ash.Changeset.change_attribute(:support_end_date, Date.add(today, support_months * 30))
+      end
+    end
+
+    update :submit_review do
+      accept [:customer_rating, :customer_review]
+      change set_attribute(:reviewed_at, &DateTime.utc_now/0)
     end
 
     read :by_company do
@@ -195,6 +217,79 @@ defmodule Backend.Portal.Project do
       allow_nil? false
       public? true
       description "Flag to mark high-priority projects/requests"
+    end
+
+    # Preview/Staging environment
+    attribute :preview_url, :string do
+      public? true
+      description "URL for customer to preview work in staging/development environment"
+    end
+
+    attribute :preview_notes, :string do
+      public? true
+      description "Notes or instructions for accessing the preview"
+    end
+
+    attribute :preview_updated_at, :utc_datetime do
+      public? true
+      description "When the preview was last updated"
+    end
+
+    # Project completion and delivery
+    attribute :is_delivered, :boolean do
+      default false
+      allow_nil? false
+      public? true
+      description "Whether the project has been delivered to the customer"
+    end
+
+    attribute :delivered_at, :utc_datetime do
+      public? true
+      description "When the project was delivered"
+    end
+
+    attribute :delivery_url, :string do
+      public? true
+      description "URL to the live/delivered project"
+    end
+
+    attribute :delivery_notes, :string do
+      public? true
+      description "Notes about the delivery for the customer"
+    end
+
+    # Customer feedback
+    attribute :customer_rating, :integer do
+      public? true
+      description "Customer rating 1-5 stars"
+      constraints min: 1, max: 5
+    end
+
+    attribute :customer_review, :string do
+      public? true
+      description "Customer's written review/feedback"
+    end
+
+    attribute :reviewed_at, :utc_datetime do
+      public? true
+      description "When the customer submitted their review"
+    end
+
+    # Support period
+    attribute :support_start_date, :date do
+      public? true
+      description "When the support period starts (usually delivery date)"
+    end
+
+    attribute :support_end_date, :date do
+      public? true
+      description "When the support period ends"
+    end
+
+    attribute :support_months, :integer do
+      default 6
+      public? true
+      description "Number of months of support included (default 6)"
     end
 
     create_timestamp :inserted_at

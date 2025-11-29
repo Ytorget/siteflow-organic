@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Upload, File, X } from 'lucide-react';
-import { useCreateDocument, useProjects } from '../../src/hooks/useApi';
+import { useProjects } from '../../src/hooks/useApi';
+import { useAuth } from '../../src/context/AuthContext';
 
 interface UploadDocumentFormProps {
   onSuccess?: () => void;
@@ -15,7 +16,7 @@ const UploadDocumentForm: React.FC<UploadDocumentFormProps> = ({
   defaultProjectId,
 }) => {
   const { t } = useTranslation();
-  const createDocument = useCreateDocument();
+  const { getAuthHeaders } = useAuth();
   const { data: projects = [] } = useProjects();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -26,13 +27,15 @@ const UploadDocumentForm: React.FC<UploadDocumentFormProps> = ({
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (max 10MB for demo)
-      if (file.size > 10 * 1024 * 1024) {
-        setError('Filen är för stor. Max storlek är 10MB.');
+      // Check file size (max 50MB per backend config)
+      if (file.size > 50 * 1024 * 1024) {
+        setError('Filen är för stor. Max storlek är 50MB.');
         return;
       }
       setSelectedFile(file);
@@ -63,24 +66,46 @@ const UploadDocumentForm: React.FC<UploadDocumentFormProps> = ({
       return;
     }
 
-    try {
-      // In a real app, you would upload the file to a storage service first
-      // and get back a file path/URL. For now, we'll simulate this.
-      const simulatedFilePath = `/uploads/${Date.now()}_${selectedFile.name}`;
+    setIsUploading(true);
+    setUploadProgress(0);
 
-      await createDocument.mutateAsync({
-        name: selectedFile.name,
-        description: formData.description || undefined,
-        filePath: simulatedFilePath,
-        fileSize: selectedFile.size,
-        mimeType: selectedFile.type || undefined,
-        category: formData.category,
-        projectId: formData.projectId,
+    try {
+      // Create FormData for multipart upload
+      const uploadData = new FormData();
+      uploadData.append('file', selectedFile);
+      uploadData.append('project_id', formData.projectId);
+      uploadData.append('category', formData.category);
+      uploadData.append('name', selectedFile.name);
+
+      if (formData.description) {
+        uploadData.append('description', formData.description);
+      }
+
+      // Upload file to S3 via backend API
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        headers: {
+          ...getAuthHeaders(), // Add Bearer token
+          // Don't set Content-Type - browser will set it with boundary for multipart/form-data
+        },
+        body: uploadData,
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const result = await response.json();
+      console.log('Upload successful:', result);
+
+      setUploadProgress(100);
       onSuccess?.();
     } catch (err) {
+      console.error('Upload error:', err);
       setError(err instanceof Error ? err.message : 'Kunde inte ladda upp dokument');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -129,7 +154,7 @@ const UploadDocumentForm: React.FC<UploadDocumentFormProps> = ({
                 required
               />
             </label>
-            <p className="text-xs text-slate-500 mt-2">Max 10MB</p>
+            <p className="text-xs text-slate-500 mt-2">Max 50MB</p>
           </div>
         ) : (
           <div className="border border-slate-300 rounded-lg p-4 bg-slate-50">
@@ -220,17 +245,17 @@ const UploadDocumentForm: React.FC<UploadDocumentFormProps> = ({
             type="button"
             onClick={onCancel}
             className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
-            disabled={createDocument.isPending}
+            disabled={isUploading}
           >
             Avbryt
           </button>
         )}
         <button
           type="submit"
-          disabled={createDocument.isPending || !selectedFile}
+          disabled={isUploading || !selectedFile}
           className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {createDocument.isPending ? (
+          {isUploading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
               Laddar upp...

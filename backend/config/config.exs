@@ -24,9 +24,8 @@ config :ash,
 # AshTypescript configuration
 config :ash_typescript,
   domains: [Backend.Accounts, Backend.Portal],
-  output_file: "../siteflow-public/src/generated/ash-rpc.ts",
-  generate_zod_schemas: true,
-  zod_import_path: "zod",
+  output_file: "../src/generated/ash-rpc.ts",
+  generate_zod_schemas: false,
   run_endpoint: "/api/rpc/run",
   validate_endpoint: "/api/rpc/validate",
   output_field_formatter: :camel_case,
@@ -70,6 +69,10 @@ config :backend, :gemini,
   embedding_model: "text-embedding-004",
   generation_model: "gemini-2.0-flash-exp",
   embedding_dimensions: 768
+
+# Hammer rate limiting configuration
+config :hammer,
+  backend: {Hammer.Backend.ETS, [expiry_ms: 60_000 * 60 * 2, cleanup_interval_ms: 60_000 * 10]}
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

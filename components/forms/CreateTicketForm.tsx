@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loader2, Ticket } from 'lucide-react';
+import { Loader2, Ticket, Upload, X, File } from 'lucide-react';
 import { useCreateTicket, useProjects } from '../../src/hooks/useApi';
+import { useAuth } from '../../src/context/AuthContext';
+import RichTextEditor from '../shared/RichTextEditor';
 
 interface CreateTicketFormProps {
   onSuccess?: () => void;
@@ -13,6 +15,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onCancel
   const { t } = useTranslation();
   const createTicket = useCreateTicket();
   const { data: projects = [] } = useProjects();
+  const { getAuthHeaders } = useAuth();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -22,7 +25,9 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onCancel
     category: 'task' as 'bug' | 'feature' | 'support' | 'question' | 'task',
   });
 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +44,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onCancel
     }
 
     try {
-      await createTicket.mutateAsync({
+      // Create ticket first
+      const ticket = await createTicket.mutateAsync({
         title: formData.title,
         description: formData.description || undefined,
         projectId: formData.projectId,
@@ -47,10 +53,54 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onCancel
         category: formData.category,
       });
 
+      // Upload files if any
+      if (selectedFiles.length > 0 && ticket.id) {
+        setIsUploading(true);
+
+        for (const file of selectedFiles) {
+          const uploadData = new FormData();
+          uploadData.append('file', file);
+          uploadData.append('project_id', formData.projectId);
+          uploadData.append('ticket_id', ticket.id);
+          uploadData.append('category', 'other');
+          uploadData.append('name', file.name);
+
+          await fetch('/api/documents/upload', {
+            method: 'POST',
+            headers: {
+              ...getAuthHeaders(),
+            },
+            body: uploadData,
+          });
+        }
+
+        setIsUploading(false);
+      }
+
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Kunde inte skapa ärende');
+      setIsUploading(false);
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    // Check file size (max 50MB per file)
+    for (const file of files) {
+      if (file.size > 50 * 1024 * 1024) {
+        setError(`Filen "${file.name}" är för stor. Max storlek är 50MB.`);
+        return;
+      }
+    }
+
+    setSelectedFiles((prev) => [...prev, ...files]);
+    setError(null);
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -124,17 +174,14 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onCancel
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-2">
+        <label className="block text-sm font-medium text-slate-700 mb-2">
           Beskrivning
         </label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          rows={4}
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-          placeholder="Beskriv ärendet..."
+        <RichTextEditor
+          content={formData.description}
+          onChange={(content) => setFormData((prev) => ({ ...prev, description: content }))}
+          placeholder="Beskriv ärendet i detalj..."
+          disabled={createTicket.isPending || isUploading}
         />
       </div>
 
@@ -179,6 +226,58 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onCancel
             ))}
           </select>
         </div>
+      </div>
+
+      {/* File Attachments */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          Bifoga filer (screenshots, dokument)
+        </label>
+
+        {/* File Input */}
+        <label className="block cursor-pointer">
+          <input
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*,.pdf,.doc,.docx,.txt"
+            disabled={createTicket.isPending || isUploading}
+          />
+          <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-colors">
+            <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+            <p className="text-sm text-slate-600">Klicka för att välja filer</p>
+            <p className="text-xs text-slate-500 mt-1">Max 50MB per fil</p>
+          </div>
+        </label>
+
+        {/* Selected Files List */}
+        {selectedFiles.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {selectedFiles.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200"
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <File className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <span className="text-sm text-slate-700 truncate">{file.name}</span>
+                  <span className="text-xs text-slate-500 flex-shrink-0">
+                    ({(file.size / 1024).toFixed(1)} KB)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveFile(index)}
+                  className="p-1 hover:bg-slate-200 rounded transition-colors"
+                  disabled={createTicket.isPending || isUploading}
+                >
+                  <X className="w-4 h-4 text-slate-500" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Action Buttons */}

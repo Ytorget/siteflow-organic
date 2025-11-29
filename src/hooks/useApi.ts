@@ -24,6 +24,9 @@ import {
   ticketApprove,
   ticketRequestChanges,
   invitationAccept,
+  commentRead,
+  commentByTicket,
+  commentCreate,
   formResponseRead,
   formResponseByProject,
   formResponseByProjectAndType,
@@ -79,6 +82,7 @@ export const queryKeys = {
   timeEntries: ['timeEntries'] as const,
   invitations: ['invitations'] as const,
   documents: ['documents'] as const,
+  comments: ['comments'] as const,
   formResponses: ['formResponses'] as const,
   internalNotes: ['internalNotes'] as const,
   productPlans: ['productPlans'] as const,
@@ -86,6 +90,7 @@ export const queryKeys = {
   meetings: ['meetings'] as const,
   project: (id: string) => ['project', id] as const,
   ticket: (id: string) => ['ticket', id] as const,
+  commentsByTicket: (ticketId: string) => ['comments', 'ticket', ticketId] as const,
   formResponsesByProject: (projectId: string) => ['formResponses', 'project', projectId] as const,
   internalNotesByProject: (projectId: string) => ['internalNotes', 'project', projectId] as const,
   productPlansByProject: (projectId: string) => ['productPlans', 'project', projectId] as const,
@@ -396,6 +401,61 @@ export function useRequestChangesTicket() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tickets });
+    },
+  });
+}
+
+// ============== Comment Hooks ==============
+
+export function useCommentsByTicket(ticketId: string | undefined) {
+  const config = useAuthConfig();
+
+  return useQuery({
+    queryKey: ticketId ? queryKeys.commentsByTicket(ticketId) : ['comments', 'none'],
+    queryFn: async () => {
+      if (!ticketId) return [];
+
+      const result = await commentByTicket({
+        args: { ticketId },
+        fields: ['id', 'body', 'isInternal', 'ticketId', 'authorId', 'insertedAt', 'updatedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to fetch comments');
+      }
+      return result.data;
+    },
+    enabled: !!ticketId,
+  });
+}
+
+export function useCreateComment() {
+  const queryClient = useQueryClient();
+  const config = useAuthConfig();
+
+  return useMutation({
+    mutationFn: async ({
+      ticketId,
+      body,
+      isInternal,
+    }: {
+      ticketId: string;
+      body: string;
+      isInternal?: boolean;
+    }) => {
+      const result = await commentCreate({
+        input: { ticketId, body, isInternal },
+        fields: ['id', 'body', 'isInternal', 'ticketId', 'authorId', 'insertedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error((result as any).errors?.[0]?.message || 'Failed to create comment');
+      }
+      return result.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.commentsByTicket(variables.ticketId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.comments });
     },
   });
 }

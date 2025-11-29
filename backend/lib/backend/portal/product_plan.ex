@@ -24,11 +24,25 @@ defmodule Backend.Portal.ProductPlan do
     otp_app: :backend,
     domain: Backend.Portal,
     data_layer: AshPostgres.DataLayer,
-    extensions: [AshTypescript.Resource],
+    extensions: [AshTypescript.Resource, AshStateMachine],
     authorizers: [Ash.Policy.Authorizer]
 
   typescript do
     type_name "ProductPlan"
+  end
+
+  state_machine do
+    initial_states [:draft]
+    default_initial_state :draft
+
+    transitions do
+      transition :send_to_customer, from: [:draft, :revised], to: :sent
+      transition :mark_viewed, from: :sent, to: :viewed
+      transition :approve, from: [:sent, :viewed], to: :approved
+      transition :request_changes, from: [:sent, :viewed], to: :changes_requested
+      transition :revise, from: :changes_requested, to: :revised
+      transition :archive, from: [:draft, :sent, :viewed, :approved, :changes_requested, :revised], to: :archived
+    end
   end
 
   postgres do

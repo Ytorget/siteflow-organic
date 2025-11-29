@@ -23,7 +23,10 @@
       "Bash(npm run test:run:*)",
       "Bash(powershell -Command \"(Get-Content ash-rpc.ts) -replace ''export const (\\w+) = z\\.object'', ''export const $1Schema = z.object'' | Set-Content ash-rpc.ts\")",
       "Bash(powershell:*)",
-      "Bash(mix deps.get:*)"
+      "Bash(mix deps.get:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

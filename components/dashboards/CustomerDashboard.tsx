@@ -16,6 +16,9 @@ import Modal from '../shared/Modal';
 import CreateTicketForm from '../forms/CreateTicketForm';
 import ProjectSelector from '../shared/ProjectSelector';
 import ProjectOverview from '../ProjectOverview';
+import ProjectStatus from '../shared/ProjectStatus';
+import ProjectTeam from '../shared/ProjectTeam';
+import { useMilestonesByProject } from '../../src/hooks/useApi';
 
 const CustomerDashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -28,6 +31,18 @@ const CustomerDashboard: React.FC = () => {
     user?.companyId ? { companyId: user.companyId } : undefined
   );
   const { data: tickets = [], isLoading: ticketsLoading, error: ticketsError } = useTickets();
+
+  // Fetch milestones for selected project
+  const { data: milestones = [] } = useMilestonesByProject(
+    selectedProjectId || ''
+  );
+
+  // Get selected project details
+  const selectedProject = projects.find((p: any) => p.id === selectedProjectId);
+
+  // TODO: Fetch team members for selected project
+  // For now, we'll show the current user as a team member
+  const teamMembers = selectedProjectId && user ? [user] : [];
 
   const loading = projectsLoading || ticketsLoading;
   const error = projectsError || ticketsError;
@@ -227,16 +242,28 @@ const CustomerDashboard: React.FC = () => {
             />
           </div>
 
-          {/* Project Overview with Timeline and Meetings */}
-          {selectedProjectId ? (
-            <ProjectOverview
-              projectId={selectedProjectId}
-              canEdit={false}
-            />
+          {/* Project Details */}
+          {selectedProjectId && selectedProject ? (
+            <div className="space-y-6">
+              {/* Project Status Overview */}
+              <ProjectStatus
+                project={selectedProject}
+                milestones={milestones}
+              />
+
+              {/* Project Team */}
+              <ProjectTeam teamMembers={teamMembers} />
+
+              {/* Project Overview with Timeline and Meetings */}
+              <ProjectOverview
+                projectId={selectedProjectId}
+                canEdit={false}
+              />
+            </div>
           ) : (
             <div className="bg-white rounded-lg border border-slate-200 p-8 text-center text-slate-500">
               <FolderKanban className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-              <p>{t('projectOverview.noSelection', 'Välj ett projekt för att se tidslinje och möten')}</p>
+              <p>{t('projectOverview.noSelection', 'Välj ett projekt för att se detaljer')}</p>
             </div>
           )}
         </div>

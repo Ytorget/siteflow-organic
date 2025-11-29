@@ -5,6 +5,7 @@ defmodule BackendWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug :load_user_from_bearer
+    plug BackendWeb.Plugs.RateLimit, limit: 60, period: 60_000, scope: "api"
   end
 
   pipeline :authenticated do
@@ -12,14 +13,23 @@ defmodule BackendWeb.Router do
     plug :set_ash_actor
   end
 
+  pipeline :auth_rate_limit do
+    plug BackendWeb.Plugs.RateLimit, limit: 10, period: 60_000, scope: "auth"
+  end
+
+  pipeline :upload_rate_limit do
+    plug BackendWeb.Plugs.RateLimit, limit: 20, period: 60_000, scope: "upload"
+  end
+
+  pipeline :rag_rate_limit do
+    plug BackendWeb.Plugs.RateLimit, limit: 30, period: 60_000, scope: "rag"
+  end
+
   # Public API routes
   scope "/api" do
-    pipe_through :api
+    pipe_through [:api, :auth_rate_limit]
 
-    # Public health check
-    get "/health", BackendWeb.HealthController, :index
-
-    # Manual auth routes since auth_routes macro has issues
+    # Manual auth routes since auth_routes macro has issues (stricter rate limit)
     post "/auth/register", BackendWeb.AuthController, :register
     post "/auth/sign-in", BackendWeb.AuthController, :sign_in
     delete "/auth/sign-out", BackendWeb.AuthController, :sign_out
@@ -27,6 +37,11 @@ defmodule BackendWeb.Router do
     # Onboarding routes (public - for invitation-based registration)
     get "/onboarding/validate/:token", BackendWeb.OnboardingController, :validate_token
     post "/onboarding/register", BackendWeb.OnboardingController, :register
+  end
+
+  # Health check (no rate limit)
+  scope "/api" do
+    get "/health", BackendWeb.HealthController, :index
   end
 
   # Protected API routes - Ash RPC
@@ -38,9 +53,23 @@ defmodule BackendWeb.Router do
     post "/rpc/validate", BackendWeb.AshTypescriptRpcController, :validate
   end
 
+  # Protected API routes - File Uploads
+  scope "/api/documents" do
+    pipe_through [:api, :authenticated, :upload_rate_limit]
+
+    # File upload (multipart/form-data)
+    post "/upload", BackendWeb.FileUploadController, :upload
+
+    # Get presigned download URL
+    get "/:id/download", BackendWeb.FileUploadController, :download
+
+    # Delete document and file
+    delete "/:id", BackendWeb.FileUploadController, :delete
+  end
+
   # Protected API routes - RAG/AI System
   scope "/api/rag" do
-    pipe_through [:api, :authenticated]
+    pipe_through [:api, :authenticated, :rag_rate_limit]
 
     # Chat endpoints
     post "/projects/:id/chat", BackendWeb.RAGController, :chat
@@ -55,6 +84,8 @@ defmodule BackendWeb.Router do
     # Manual knowledge management
     post "/projects/:id/knowledge", BackendWeb.RAGController, :add_knowledge
     get "/projects/:id/knowledge", BackendWeb.RAGController, :list_knowledge
+    get "/projects/:id/knowledge/stats", BackendWeb.RAGController, :knowledge_stats
+    delete "/projects/:id/knowledge/:knowledge_id", BackendWeb.RAGController, :delete_knowledge
 
     # Embedding
     post "/projects/:id/embed", BackendWeb.RAGController, :embed_project_data
