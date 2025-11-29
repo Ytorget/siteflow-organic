@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
-import { Mail, ArrowRight, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '../types';
 import { useAuth } from '../src/context/AuthContext';
+
+// New UI Components
+import { Input } from '../src/components/ui/input';
+import { Button } from '../src/components/ui/button';
+import { Label } from '../src/components/ui/label';
+import { Alert } from '../src/components/ui/alert';
+import { Checkbox } from '../src/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../src/components/ui/card';
+import { Separator, SeparatorWithText } from '../src/components/ui/separator';
+import { toast } from '../src/components/ui/toast';
 
 interface LoginPageProps {
   onNavigate: (page: Page) => void;
@@ -23,10 +33,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
 
     try {
       await login(email, password);
+      toast.success('Inloggning lyckades', {
+        description: 'Du omdirigeras till din dashboard...'
+      });
       // Redirect to dashboard on success
       onNavigate('dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'Ett fel uppstod';
+      setError(errorMessage);
+      toast.error('Inloggning misslyckades', {
+        description: errorMessage
+      });
     } finally {
       setIsLoading(false);
     }
@@ -45,8 +62,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
       <section className="min-h-screen flex items-center justify-center py-12 px-6 relative z-10">
         <div className="w-full max-w-md">
 
-            {/* Login Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-lg p-8 animate-scale-in">
+            {/* Login Card - Force light mode to prevent theme affecting login form */}
+            <div className="light bg-white border border-slate-200 rounded-2xl shadow-lg p-8 animate-scale-in">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-full mb-4 animate-fade-in border-2 border-cyan-400">
                   <img src="/logos/siteflow-logo/favicon.svg" alt="Siteflow" width="40" height="40" className="w-10 h-10" />
@@ -58,104 +75,92 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Error Message */}
                 {error && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    <span>{error}</span>
-                  </div>
+                  <Alert variant="error" dismissible onDismiss={() => setError(null)}>
+                    {error}
+                  </Alert>
                 )}
 
                 {/* Email Field */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+                <div className="space-y-2">
+                  <Label htmlFor="email" required>
                     {t('loginPage.emailLabel')}
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <input
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-                      placeholder={t('loginPage.emailPlaceholder')}
-                      required
-                    />
-                  </div>
+                  </Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('loginPage.emailPlaceholder')}
+                    leftIcon={<Mail className="w-5 h-5" />}
+                    required
+                    autoComplete="email"
+                  />
                 </div>
 
                 {/* Password Field */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+                <div className="space-y-2">
+                  <Label htmlFor="password" required>
                     {t('loginPage.passwordLabel')}
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <input
-                      type="password"
-                      id="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-                      placeholder={t('loginPage.passwordPlaceholder')}
-                      required
-                    />
-                  </div>
+                  </Label>
+                  <Input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t('loginPage.passwordPlaceholder')}
+                    leftIcon={<Lock className="w-5 h-5" />}
+                    required
+                    autoComplete="current-password"
+                  />
                 </div>
 
                 {/* Remember Me & Forgot Password */}
                 <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 border-slate-300 rounded text-blue-600 focus:ring-blue-400"
-                    />
-                    <span className="ml-2 text-slate-600">{t('loginPage.rememberMe')}</span>
-                  </label>
+                  <Checkbox
+                    id="remember"
+                    label={t('loginPage.rememberMe')}
+                  />
                   <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
                     {t('loginPage.forgotPassword')}
                   </a>
                 </div>
 
                 {/* Submit Button */}
-                <button
+                <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-6 bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-cyan-300/50 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 hover:shadow-lg hover:shadow-cyan-300/50"
+                  size="lg"
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
                       <span>Loggar in...</span>
                     </>
                   ) : (
                     <>
                       <span>{t('loginPage.loginButton')}</span>
-                      <ArrowRight className="w-5 h-5" />
+                      <ArrowRight className="w-5 h-5 ml-2" />
                     </>
                   )}
-                </button>
+                </Button>
               </form>
 
               {/* Divider */}
-              <div className="relative my-8">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-slate-500">{t('loginPage.or')}</span>
-                </div>
-              </div>
+              <SeparatorWithText className="my-8">
+                {t('loginPage.or')}
+              </SeparatorWithText>
 
               {/* Social Login Options */}
               <div className="space-y-3">
-                <button className="w-full py-3 px-6 border border-slate-300 rounded-lg font-medium text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
-                  <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20" className="w-5 h-5" />
+                <Button variant="outline" className="w-full" size="lg">
+                  <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20" className="w-5 h-5 mr-2" />
                   <span>{t('loginPage.continueWithGoogle')}</span>
-                </button>
-                <button className="w-full py-3 px-6 border border-slate-300 rounded-lg font-medium text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
-                  <img src="https://github.com/favicon.ico" alt="GitHub" width="20" height="20" className="w-5 h-5" />
+                </Button>
+                <Button variant="outline" className="w-full" size="lg">
+                  <img src="https://github.com/favicon.ico" alt="GitHub" width="20" height="20" className="w-5 h-5 mr-2" />
                   <span>{t('loginPage.continueWithGithub')}</span>
-                </button>
+                </Button>
               </div>
 
               {/* Sign Up Link */}

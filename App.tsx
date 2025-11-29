@@ -83,6 +83,11 @@ const App: React.FC = () => {
       dashboardProductPlans: 'Produktplaner | Siteflow',
       dashboardFormResponses: 'Formulärsvar | Siteflow',
       dashboardFileBrowser: 'Filhanterare | Siteflow',
+      dashboardSettings: 'Inställningar | Siteflow',
+      dashboardIntegrations: 'Integrationer | Siteflow',
+      dashboardApiPortal: 'API & Utvecklare | Siteflow',
+      dashboardAuditLog: 'Granskningslogg | Siteflow',
+      dashboardAnalytics: 'Analys & Rapporter | Siteflow',
       onboarding: 'Registrering | Siteflow'
     };
 
@@ -176,6 +181,17 @@ const App: React.FC = () => {
       case 'dashboardDocuments':
       case 'dashboardTeam':
       case 'dashboardCompanies':
+      case 'dashboardAIChat':
+      case 'dashboardKnowledge':
+      case 'dashboardAIDocs':
+      case 'dashboardProductPlans':
+      case 'dashboardFormResponses':
+      case 'dashboardFileBrowser':
+      case 'dashboardSettings':
+      case 'dashboardIntegrations':
+      case 'dashboardApiPortal':
+      case 'dashboardAuditLog':
+      case 'dashboardAnalytics':
         return <Suspense fallback={<PageLoader />}><DashboardPage currentPage={currentPage} onNavigate={handleNavigate} onLogout={handleLogout} /></Suspense>;
       case 'onboarding':
         return <Suspense fallback={<PageLoader />}><OnboardingPage onNavigate={handleNavigate} token={onboardingToken || undefined} /></Suspense>;

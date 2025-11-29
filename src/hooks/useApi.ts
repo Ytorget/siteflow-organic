@@ -148,6 +148,29 @@ export function useProjects(filter?: { companyId?: string; state?: string }) {
   });
 }
 
+export function useProject(projectId: string) {
+  const config = useAuthConfig();
+
+  return useQuery({
+    queryKey: [...queryKeys.projects, 'detail', projectId],
+    queryFn: async () => {
+      // Fetch all projects and find the one with matching ID
+      // Using projectRead without filter to avoid potential filter issues
+      const result = await projectRead({
+        fields: ['id', 'name', 'description', 'state', 'budget', 'spent', 'startDate', 'targetEndDate', 'estimatedEndDate', 'companyId', 'isPriority', 'createdAt', 'updatedAt'],
+        ...config,
+      });
+      if (!result.success) {
+        throw new Error(result.errors?.[0]?.message || 'Failed to fetch project');
+      }
+      // Find the project by ID
+      const project = result.data?.find((p: any) => p.id === projectId);
+      return project || null;
+    },
+    enabled: !!projectId,
+  });
+}
+
 export function useCreateProject() {
   const queryClient = useQueryClient();
   const config = useAuthConfig();
@@ -1284,7 +1307,7 @@ export function useMilestonesByProject(projectId: string) {
     queryFn: async () => {
       const result = await milestoneByProject({
         input: { projectId },
-        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'createdAt', 'updatedAt'],
+        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'projectId'],
         sort: 'orderIndex',
         ...config,
       });
@@ -1319,7 +1342,7 @@ export function useCreateMilestone() {
     }) => {
       const result = await milestoneCreate({
         input: { projectId, title, description, dueDate, orderIndex, status },
-        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'createdAt'],
+        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'projectId'],
         ...config,
       });
       if (!result.success) {
@@ -1358,7 +1381,7 @@ export function useUpdateMilestone() {
       const result = await milestoneUpdate({
         primaryKey: id,
         input: { title, description, dueDate, orderIndex, status },
-        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'updatedAt'],
+        fields: ['id', 'title', 'description', 'dueDate', 'completedAt', 'orderIndex', 'status', 'projectId'],
         ...config,
       });
       if (!result.success) {
@@ -1447,7 +1470,7 @@ export function useMeetingsByProject(projectId: string) {
     queryFn: async () => {
       const result = await meetingByProject({
         input: { projectId },
-        fields: ['id', 'title', 'description', 'meetingType', 'scheduledAt', 'durationMinutes', 'location', 'meetingUrl', 'notes', 'actionItems', 'attendees', 'status', 'createdAt', 'updatedAt'],
+        fields: ['id', 'title', 'description', 'meetingType', 'scheduledAt', 'durationMinutes', 'location', 'meetingUrl', 'notes', 'actionItems', 'attendees', 'status', 'projectId'],
         sort: 'scheduledAt',
         ...config,
       });
@@ -1557,7 +1580,7 @@ export function useUpdateMeeting() {
           actionItems: data.actionItems,
           attendees: data.attendees,
         },
-        fields: ['id', 'title', 'notes', 'actionItems', 'status', 'updatedAt'],
+        fields: ['id', 'title', 'notes', 'actionItems', 'status', 'projectId'],
         ...config,
       });
       if (!result.success) {

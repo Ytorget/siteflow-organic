@@ -5,20 +5,39 @@ import {
   Clock,
   AlertCircle,
   CheckCircle2,
-  Loader2,
-  Plus
+  Plus,
+  ArrowUpRight,
+  TrendingUp
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import StatsCard from './StatsCard';
 import { useAuth } from '../../src/context/AuthContext';
-import { useProjects, useTickets } from '../../src/hooks/useApi';
-import Modal from '../shared/Modal';
+import { useProjects, useTickets, useMilestonesByProject } from '../../src/hooks/useApi';
 import CreateTicketForm from '../forms/CreateTicketForm';
 import ProjectSelector from '../shared/ProjectSelector';
 import ProjectOverview from '../ProjectOverview';
 import ProjectStatus from '../shared/ProjectStatus';
 import ProjectTeam from '../shared/ProjectTeam';
-import { useMilestonesByProject } from '../../src/hooks/useApi';
+
+// New UI Components
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from '../../src/components/ui/card';
+import { Button } from '../../src/components/ui/button';
+import { Badge, StatusBadge, PriorityBadge } from '../../src/components/ui/badge';
+import { Skeleton, SkeletonCard } from '../../src/components/ui/skeleton';
+import { Progress, CircularProgress } from '../../src/components/ui/progress';
+import { EmptyState, EmptyStateFolder, EmptyStateInbox } from '../../src/components/ui/empty-state';
+import { StatCard } from '../../src/components/ui/charts';
+import { Avatar, AvatarGroup } from '../../src/components/ui/avatar';
+import { Modal, ModalContent, ModalHeader, ModalTitle } from '../../src/components/ui/modal';
+import { Alert } from '../../src/components/ui/alert';
+import { Tooltip } from '../../src/components/ui/tooltip';
+import { toast } from '../../src/components/ui/toast';
 
 const CustomerDashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -79,152 +98,184 @@ const CustomerDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="space-y-6">
+        {/* Welcome skeleton */}
+        <Skeleton className="h-32 w-full rounded-xl" />
+
+        {/* Stats skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+
+        {/* Content skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SkeletonCard className="h-80" />
+          <SkeletonCard className="h-80" />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-red-700">
-        <div className="flex items-center gap-2">
-          <AlertCircle className="w-5 h-5" />
-          <span>{error instanceof Error ? error.message : 'Failed to load dashboard data'}</span>
-        </div>
-      </div>
+      <Alert variant="error" title="Fel vid hämtning av data">
+        {error instanceof Error ? error.message : 'Kunde inte ladda dashboard-data'}
+      </Alert>
     );
   }
 
   return (
     <div className="space-y-6">
       {/* Welcome message */}
-      <div className="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">{t('dashboard.welcome')}</h2>
-            <p className="text-blue-100 mt-1">{t('dashboard.welcomeSubtitle')}</p>
+      <Card className="bg-gradient-to-r from-blue-600 to-cyan-500 border-none text-white overflow-hidden relative">
+        <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10" />
+        <CardContent className="p-6 relative z-10">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h2 className="text-2xl font-bold">{t('dashboard.welcome')}, {user?.first_name}!</h2>
+              <p className="text-blue-100 mt-1">{t('dashboard.welcomeSubtitle')}</p>
+            </div>
+            <Button
+              onClick={() => {
+                setIsCreateTicketModalOpen(true);
+                toast.info('Skapa ett nytt ärende');
+              }}
+              variant="outline"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nytt ärende
+            </Button>
           </div>
-          <button
-            onClick={() => setIsCreateTicketModalOpen(true)}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Nytt ärende
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Stats grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
+        <StatCard
           title={t('dashboard.stats.activeProjects')}
           value={activeProjects}
           icon={<FolderKanban className="w-5 h-5" />}
-          color="blue"
+          change={activeProjects > 0 ? '+1 denna månad' : undefined}
+          changeType="increase"
         />
-        <StatsCard
+        <StatCard
           title={t('dashboard.stats.openTickets')}
           value={openTickets}
           icon={<Ticket className="w-5 h-5" />}
-          color="amber"
+          change={openTickets > 0 ? `${openTickets} behöver åtgärd` : undefined}
+          changeType={openTickets > 5 ? 'decrease' : 'neutral'}
         />
-        <StatsCard
+        <StatCard
           title={t('dashboard.stats.criticalIssues')}
           value={criticalTickets}
           icon={<AlertCircle className="w-5 h-5" />}
-          color="purple"
+          change={criticalTickets > 0 ? 'Kräver uppmärksamhet' : 'Allt ser bra ut!'}
+          changeType={criticalTickets > 0 ? 'decrease' : 'increase'}
         />
-        <StatsCard
+        <StatCard
           title={t('dashboard.stats.thisMonth')}
           value="0h"
           icon={<Clock className="w-5 h-5" />}
-          color="green"
+          change="Loggad tid"
+          changeType="neutral"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Tickets */}
-        <div className="bg-white rounded-xl border border-slate-200">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">{t('dashboard.recentTickets')}</h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-lg">{t('dashboard.recentTickets')}</CardTitle>
+            <Button variant="link" size="sm" className="text-blue-600">
               {t('dashboard.viewAll')}
-            </button>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {recentTickets.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
-                <Ticket className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                <p>{t('dashboard.noTickets')}</p>
-              </div>
-            ) : (
-              recentTickets.map((ticket) => (
-                <div key={ticket.id} className="p-4 hover:bg-slate-50 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-slate-900 truncate">{ticket.title}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${getStateColor(ticket.state)}`}>
-                          {ticket.state.replace('_', ' ')}
-                        </span>
-                        {ticket.priority && (
-                          <span className={`text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
-                            {ticket.priority}
-                          </span>
+              <ArrowUpRight className="w-4 h-4 ml-1" />
+            </Button>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="divide-y divide-slate-100 dark:divide-slate-700">
+              {recentTickets.length === 0 ? (
+                <EmptyStateInbox
+                  title={t('dashboard.noTickets')}
+                  description="Inga ärenden har skapats ännu"
+                  action={{
+                    label: 'Skapa ärende',
+                    onClick: () => setIsCreateTicketModalOpen(true)
+                  }}
+                />
+              ) : (
+                recentTickets.map((ticket) => (
+                  <div key={ticket.id} className="py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-slate-900 dark:text-slate-100 truncate">{ticket.title}</p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <StatusBadge status={ticket.state as any} />
+                          {ticket.priority && (
+                            <PriorityBadge priority={ticket.priority as any} />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Projects Overview */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-lg">{t('dashboard.projectsOverview')}</CardTitle>
+            <Button variant="link" size="sm" className="text-blue-600">
+              {t('dashboard.viewAll')}
+              <ArrowUpRight className="w-4 h-4 ml-1" />
+            </Button>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="divide-y divide-slate-100 dark:divide-slate-700">
+              {projects.length === 0 ? (
+                <EmptyStateFolder
+                  title={t('dashboard.noProjects')}
+                  description="Inga projekt har skapats ännu"
+                />
+              ) : (
+                projects.slice(0, 5).map((project) => (
+                  <div key={project.id} className="py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Avatar
+                          name={project.name}
+                          size="md"
+                          className="bg-gradient-to-br from-blue-500 to-cyan-400"
+                        />
+                        <div>
+                          <p className="font-medium text-slate-900 dark:text-slate-100">{project.name}</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{project.state.replace('_', ' ')}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {project.state === 'in_progress' ? (
+                          <Badge variant="success" className="gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            {t('dashboard.active')}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="capitalize">
+                            {project.state.replace('_', ' ')}
+                          </Badge>
                         )}
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Projects Overview */}
-        <div className="bg-white rounded-xl border border-slate-200">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">{t('dashboard.projectsOverview')}</h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-              {t('dashboard.viewAll')}
-            </button>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {projects.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
-                <FolderKanban className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                <p>{t('dashboard.noProjects')}</p>
-              </div>
-            ) : (
-              projects.slice(0, 5).map((project) => (
-                <div key={project.id} className="p-4 hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-medium">
-                        {project.name[0]}
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900">{project.name}</p>
-                        <p className="text-sm text-slate-500 capitalize">{project.state.replace('_', ' ')}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {project.state === 'in_progress' ? (
-                        <span className="flex items-center gap-1 text-sm text-green-600">
-                          <CheckCircle2 className="w-4 h-4" />
-                          {t('dashboard.active')}
-                        </span>
-                      ) : (
-                        <span className="text-sm text-slate-400 capitalize">{project.state.replace('_', ' ')}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Project Selector and Overview */}
@@ -270,16 +321,21 @@ const CustomerDashboard: React.FC = () => {
       ) : null}
 
       {/* Create Ticket Modal */}
-      <Modal
-        isOpen={isCreateTicketModalOpen}
-        onClose={() => setIsCreateTicketModalOpen(false)}
-        title="Skapa nytt ärende"
-        size="lg"
-      >
-        <CreateTicketForm
-          onSuccess={() => setIsCreateTicketModalOpen(false)}
-          onCancel={() => setIsCreateTicketModalOpen(false)}
-        />
+      <Modal open={isCreateTicketModalOpen} onOpenChange={setIsCreateTicketModalOpen}>
+        <ModalContent className="sm:max-w-lg">
+          <ModalHeader>
+            <ModalTitle>Skapa nytt ärende</ModalTitle>
+          </ModalHeader>
+          <CreateTicketForm
+            onSuccess={() => {
+              setIsCreateTicketModalOpen(false);
+              toast.success('Ärende skapat', {
+                description: 'Ditt ärende har skapats framgångsrikt.'
+              });
+            }}
+            onCancel={() => setIsCreateTicketModalOpen(false)}
+          />
+        </ModalContent>
       </Modal>
     </div>
   );

@@ -1,4 +1,5 @@
 export { default as ProjectsPage } from './ProjectsPage';
+export { default as ProjectDetailPage } from './ProjectDetailPage';
 export { default as TicketsPage } from './TicketsPage';
 export { default as DocumentsPage } from './DocumentsPage';
 export { default as TeamPage } from './TeamPage';

@@ -7,15 +7,17 @@ import {
   Clock,
   AlertCircle,
   TrendingUp,
-  Loader2,
   UserPlus,
   Mail,
-  FileText
+  FileText,
+  ArrowUpRight,
+  CheckCircle2,
+  XCircle,
+  MoreHorizontal,
+  RefreshCw
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import StatsCard from './StatsCard';
-import { useCompanies, useProjects, useTickets, useInvitations, useAllFormResponses } from '../../src/hooks/useApi';
-import Modal from '../shared/Modal';
+import { useCompanies, useProjects, useTickets, useInvitations } from '../../src/hooks/useApi';
 import CreateProjectForm from '../forms/CreateProjectForm';
 import InviteUserForm from '../forms/InviteUserForm';
 import AdminFormResponseView from '../admin/AdminFormResponseView';
@@ -23,15 +25,45 @@ import AdminFileBrowser from '../admin/AdminFileBrowser';
 import ProjectSelector from '../shared/ProjectSelector';
 import ProjectOverview from '../ProjectOverview';
 
+// UI Components
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from '../../src/components/ui/card';
+import { Button } from '../../src/components/ui/button';
+import { Badge, StatusBadge } from '../../src/components/ui/badge';
+import { Skeleton, SkeletonCard } from '../../src/components/ui/skeleton';
+import { Progress } from '../../src/components/ui/progress';
+import { EmptyState, EmptyStateFolder, EmptyStateInbox, EmptyStateUsers } from '../../src/components/ui/empty-state';
+import { StatCard } from '../../src/components/ui/charts';
+import { Avatar, AvatarGroup } from '../../src/components/ui/avatar';
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalDescription } from '../../src/components/ui/modal';
+import { Alert } from '../../src/components/ui/alert';
+import { Tooltip } from '../../src/components/ui/tooltip';
+import { toast } from '../../src/components/ui/toast';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from '../../src/components/ui/dropdown-menu';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../src/components/ui/tabs';
+
 const AdminDashboard: React.FC = () => {
   const { t } = useTranslation();
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const [isInviteUserModalOpen, setIsInviteUserModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Use RPC hooks for data fetching
-  const { data: companies = [], isLoading: companiesLoading, error: companiesError } = useCompanies();
-  const { data: projects = [], isLoading: projectsLoading, error: projectsError } = useProjects();
+  const { data: companies = [], isLoading: companiesLoading, error: companiesError, refetch: refetchCompanies } = useCompanies();
+  const { data: projects = [], isLoading: projectsLoading, error: projectsError, refetch: refetchProjects } = useProjects();
   const { data: tickets = [], isLoading: ticketsLoading, error: ticketsError } = useTickets();
   const { data: invitations = [], isLoading: invitationsLoading, error: invitationsError } = useInvitations();
 
@@ -44,263 +76,390 @@ const AdminDashboard: React.FC = () => {
   const criticalTickets = tickets.filter((t: any) => t.priority === 'critical' || t.priority === 'high').length;
   const pendingInvitations = invitations.filter((i: any) => !i.acceptedAt && !i.cancelledAt).length;
 
+  // Project status distribution
+  const projectStatuses = ['draft', 'pending_approval', 'in_progress', 'on_hold', 'completed', 'cancelled'];
+  const projectStatusCounts = projectStatuses.map(status => ({
+    status,
+    count: projects.filter((p: any) => p.state === status).length,
+    label: status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+  }));
+
+  const handleRefresh = () => {
+    refetchCompanies();
+    refetchProjects();
+    toast.success('Data uppdaterad');
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="space-y-6">
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SkeletonCard className="h-80" />
+          <SkeletonCard className="h-80" />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-red-700">
-        <div className="flex items-center gap-2">
-          <AlertCircle className="w-5 h-5" />
-          <span>{error instanceof Error ? error.message : 'Failed to load dashboard data'}</span>
-        </div>
-      </div>
+      <Alert variant="error" title="Fel vid hämtning av data" dismissible>
+        {error instanceof Error ? error.message : 'Kunde inte ladda admin-data'}
+      </Alert>
     );
   }
 
   return (
     <div className="space-y-6">
       {/* Admin Header */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-            <p className="text-slate-300 mt-1">System overview och administration</p>
+      <Card className="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900 border-none text-white overflow-hidden relative">
+        <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-5" />
+        <CardContent className="p-6 relative z-10">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h2 className="text-2xl font-bold">Admin Dashboard</h2>
+              <p className="text-slate-300 mt-1">Systemöversikt och administration</p>
+            </div>
+            <div className="flex gap-2">
+              <Tooltip content="Uppdatera data">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </Tooltip>
+              <Button
+                variant="outline"
+                onClick={() => setIsInviteUserModalOpen(true)}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Bjud in användare
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsCreateProjectModalOpen(true);
+                  toast.info('Skapa ett nytt projekt');
+                }}
+                className="bg-blue-500 hover:bg-blue-600"
+              >
+                <FolderKanban className="w-4 h-4 mr-2" />
+                Nytt projekt
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsInviteUserModalOpen(true)}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
-            >
-              <UserPlus className="w-4 h-4" />
-              Bjud in användare
-            </button>
-            <button
-              onClick={() => setIsCreateProjectModalOpen(true)}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
-            >
-              <FolderKanban className="w-4 h-4" />
-              Nytt projekt
-            </button>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatsCard
+        <StatCard
           title="Aktiva företag"
           value={activeCompanies}
           icon={<Building className="w-5 h-5" />}
-          color="blue"
+          change={`${companies.length} totalt`}
+          changeType="neutral"
         />
-        <StatsCard
+        <StatCard
           title="Aktiva projekt"
           value={activeProjects}
           icon={<FolderKanban className="w-5 h-5" />}
-          color="green"
+          change={`${projects.length} totalt`}
+          changeType="increase"
         />
-        <StatsCard
+        <StatCard
           title="Öppna ärenden"
           value={openTickets}
           icon={<Ticket className="w-5 h-5" />}
-          color="amber"
+          change={openTickets > 10 ? 'Behöver uppmärksamhet' : 'Under kontroll'}
+          changeType={openTickets > 10 ? 'decrease' : 'increase'}
         />
-        <StatsCard
+        <StatCard
           title="Kritiska ärenden"
           value={criticalTickets}
           icon={<AlertCircle className="w-5 h-5" />}
-          color="red"
+          change={criticalTickets > 0 ? 'Kräver åtgärd' : 'Inga kritiska'}
+          changeType={criticalTickets > 0 ? 'decrease' : 'increase'}
         />
-        <StatsCard
+        <StatCard
           title="Väntande inbjudningar"
           value={pendingInvitations}
           icon={<Mail className="w-5 h-5" />}
-          color="purple"
+          change={`${invitations.length} totalt skickade`}
+          changeType="neutral"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Companies */}
-        <div className="bg-white rounded-xl border border-slate-200">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">Senaste företag</h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-              Visa alla
-            </button>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {companies.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
-                <Building className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                <p>Inga företag ännu</p>
-              </div>
-            ) : (
-              companies.slice(0, 5).map((company) => (
-                <div key={company.id} className="p-4 hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 font-medium">
-                        {company.name[0]}
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900">{company.name}</p>
-                        <p className="text-sm text-slate-500">{company.orgNumber}</p>
-                      </div>
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      company.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
-                    }`}>
-                      {company.isActive ? 'Aktiv' : 'Inaktiv'}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+      {/* Tabs for different views */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="overview">Översikt</TabsTrigger>
+          <TabsTrigger value="projects">Projekt</TabsTrigger>
+          <TabsTrigger value="forms">Formulärsvar</TabsTrigger>
+          <TabsTrigger value="files">Filer</TabsTrigger>
+        </TabsList>
 
-        {/* Pending Invitations */}
-        <div className="bg-white rounded-xl border border-slate-200">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">Väntande inbjudningar</h3>
-            <button
-              onClick={() => setIsInviteUserModalOpen(true)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Bjud in ny
-            </button>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {invitations.filter(i => !i.acceptedAt && !i.cancelledAt).length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
-                <Mail className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                <p>Inga väntande inbjudningar</p>
-              </div>
-            ) : (
-              invitations
-                .filter(i => !i.acceptedAt && !i.cancelledAt)
-                .slice(0, 5)
-                .map((invitation) => {
-                  const company = companies.find(c => c.id === invitation.companyId);
-                  const expiresAt = new Date(invitation.expiresAt);
-                  const isExpired = expiresAt < new Date();
-
-                  return (
-                    <div key={invitation.id} className="p-4 hover:bg-slate-50 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-900 truncate">{invitation.email}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-slate-500">
-                              {company?.name || 'Okänt företag'}
-                            </span>
-                            <span className="text-slate-300">•</span>
-                            <span className={`text-xs ${
-                              isExpired ? 'text-red-600' : 'text-slate-500'
-                            }`}>
-                              {isExpired ? 'Utgången' : `Utgår ${expiresAt.toLocaleDateString('sv-SE')}`}
-                            </span>
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Companies */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg">Senaste företag</CardTitle>
+                <Button variant="link" size="sm" className="text-blue-600 dark:text-blue-400">
+                  Visa alla
+                  <ArrowUpRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                  {companies.length === 0 ? (
+                    <EmptyStateUsers
+                      title="Inga företag ännu"
+                      description="Lägg till ditt första företag för att komma igång"
+                      action={{
+                        label: 'Lägg till företag',
+                        onClick: () => toast.info('Funktion kommer snart')
+                      }}
+                    />
+                  ) : (
+                    companies.slice(0, 5).map((company: any) => (
+                      <div key={company.id} className="py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Avatar name={company.name} size="md" />
+                            <div>
+                              <p className="font-medium text-slate-900 dark:text-slate-100">{company.name}</p>
+                              <p className="text-sm text-slate-500 dark:text-slate-400">{company.orgNumber}</p>
+                            </div>
                           </div>
+                          <Badge variant={company.isActive ? 'success' : 'secondary'}>
+                            {company.isActive ? 'Aktiv' : 'Inaktiv'}
+                          </Badge>
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          isExpired ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
-                          Väntande
-                        </span>
                       </div>
-                    </div>
-                  );
-                })
-            )}
-          </div>
-        </div>
-      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-      {/* Projects by Status */}
-      <div className="bg-white rounded-xl border border-slate-200">
-        <div className="p-4 border-b border-slate-200">
-          <h3 className="font-semibold text-slate-900">Projekt per status</h3>
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {['draft', 'pending_approval', 'in_progress', 'on_hold', 'completed', 'cancelled'].map((state) => (
-              <div key={state} className="text-center p-4 bg-slate-50 rounded-lg">
-                <p className="text-2xl font-bold text-slate-900">
-                  {projects.filter(p => p.state === state).length}
-                </p>
-                <p className="text-xs text-slate-500 mt-1 capitalize">{state.replace('_', ' ')}</p>
+            {/* Pending Invitations */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg">Väntande inbjudningar</CardTitle>
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={() => setIsInviteUserModalOpen(true)}
+                  className="text-blue-600 dark:text-blue-400"
+                >
+                  Bjud in ny
+                  <UserPlus className="w-4 h-4 ml-1" />
+                </Button>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                  {invitations.filter((i: any) => !i.acceptedAt && !i.cancelledAt).length === 0 ? (
+                    <EmptyStateInbox
+                      title="Inga väntande inbjudningar"
+                      description="Bjud in nya användare för att ge dem tillgång"
+                      action={{
+                        label: 'Bjud in användare',
+                        onClick: () => setIsInviteUserModalOpen(true)
+                      }}
+                    />
+                  ) : (
+                    invitations
+                      .filter((i: any) => !i.acceptedAt && !i.cancelledAt)
+                      .slice(0, 5)
+                      .map((invitation: any) => {
+                        const company = companies.find((c: any) => c.id === invitation.companyId);
+                        const expiresAt = new Date(invitation.expiresAt);
+                        const isExpired = expiresAt < new Date();
+
+                        return (
+                          <div key={invitation.id} className="py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors -mx-4 px-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-slate-900 dark:text-slate-100 truncate">{invitation.email}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-sm text-slate-500 dark:text-slate-400">
+                                    {company?.name || 'Okänt företag'}
+                                  </span>
+                                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                                  <span className={`text-xs ${isExpired ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    {isExpired ? 'Utgången' : `Utgår ${expiresAt.toLocaleDateString('sv-SE')}`}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant={isExpired ? 'error' : 'warning'}>
+                                  {isExpired ? 'Utgången' : 'Väntande'}
+                                </Badge>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      <MoreHorizontal className="w-4 h-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => toast.info('Skickar påminnelse...')}>
+                                      <Mail className="w-4 h-4 mr-2" />
+                                      Skicka påminnelse
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="text-red-600 dark:text-red-400">
+                                      <XCircle className="w-4 h-4 mr-2" />
+                                      Avbryt inbjudan
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Projects by Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Projekt per status</CardTitle>
+              <CardDescription>Fördelning av projekt över olika statusar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {projectStatusCounts.map(({ status, count, label }) => (
+                  <div
+                    key={status}
+                    className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer"
+                  >
+                    <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{count}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{label}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              {projects.length > 0 && (
+                <div className="mt-4">
+                  <Progress
+                    value={(activeProjects / projects.length) * 100}
+                    className="h-2"
+                  />
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                    {Math.round((activeProjects / projects.length) * 100)}% av projekten är aktiva
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Form Responses - Admin view */}
-      <AdminFormResponseView />
+        <TabsContent value="projects" className="space-y-6 mt-6">
+          {/* Project Selector and Overview */}
+          {projects.length > 0 ? (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('projectOverview.title', 'Projektöversikt')}</CardTitle>
+                  <CardDescription>Välj ett projekt för att se detaljer, tidslinje och möten</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ProjectSelector
+                    value={selectedProjectId}
+                    onChange={setSelectedProjectId}
+                    className="max-w-md"
+                  />
+                </CardContent>
+              </Card>
 
-      {/* File Browser - Admin view */}
-      <AdminFileBrowser />
-
-      {/* Project Selector and Overview */}
-      {projects.length > 0 ? (
-        <div className="space-y-4">
-          {/* Project Selector */}
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-3">
-              {t('projectOverview.title', 'Projektöversikt')}
-            </h3>
-            <ProjectSelector
-              value={selectedProjectId}
-              onChange={setSelectedProjectId}
-              className="max-w-md"
-            />
-          </div>
-
-          {/* Project Overview with Timeline and Meetings */}
-          {selectedProjectId ? (
-            <ProjectOverview
-              projectId={selectedProjectId}
-              canEdit={true}
-            />
-          ) : (
-            <div className="bg-white rounded-lg border border-slate-200 p-8 text-center text-slate-500">
-              <FolderKanban className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-              <p>{t('projectOverview.noSelection', 'Välj ett projekt för att se tidslinje och möten')}</p>
+              {selectedProjectId ? (
+                <ProjectOverview projectId={selectedProjectId} canEdit={true} />
+              ) : (
+                <Card>
+                  <CardContent className="py-12">
+                    <EmptyStateFolder
+                      title={t('projectOverview.noSelection', 'Välj ett projekt')}
+                      description="Välj ett projekt ovan för att se tidslinje och möten"
+                    />
+                  </CardContent>
+                </Card>
+              )}
             </div>
+          ) : (
+            <Card>
+              <CardContent className="py-12">
+                <EmptyStateFolder
+                  title="Inga projekt"
+                  description="Skapa ditt första projekt för att komma igång"
+                  action={{
+                    label: 'Skapa projekt',
+                    onClick: () => setIsCreateProjectModalOpen(true)
+                  }}
+                />
+              </CardContent>
+            </Card>
           )}
-        </div>
-      ) : null}
+        </TabsContent>
+
+        <TabsContent value="forms" className="mt-6">
+          <AdminFormResponseView />
+        </TabsContent>
+
+        <TabsContent value="files" className="mt-6">
+          <AdminFileBrowser />
+        </TabsContent>
+      </Tabs>
 
       {/* Create Project Modal */}
-      <Modal
-        isOpen={isCreateProjectModalOpen}
-        onClose={() => setIsCreateProjectModalOpen(false)}
-        title="Skapa nytt projekt"
-        size="lg"
-      >
-        <CreateProjectForm
-          onSuccess={() => setIsCreateProjectModalOpen(false)}
-          onCancel={() => setIsCreateProjectModalOpen(false)}
-        />
+      <Modal open={isCreateProjectModalOpen} onOpenChange={setIsCreateProjectModalOpen}>
+        <ModalContent className="sm:max-w-lg">
+          <ModalHeader>
+            <ModalTitle>Skapa nytt projekt</ModalTitle>
+            <ModalDescription>Fyll i projektinformation nedan</ModalDescription>
+          </ModalHeader>
+          <CreateProjectForm
+            onSuccess={() => {
+              setIsCreateProjectModalOpen(false);
+              toast.success('Projekt skapat', {
+                description: 'Projektet har skapats framgångsrikt.'
+              });
+              refetchProjects();
+            }}
+            onCancel={() => setIsCreateProjectModalOpen(false)}
+          />
+        </ModalContent>
       </Modal>
 
       {/* Invite User Modal */}
-      <Modal
-        isOpen={isInviteUserModalOpen}
-        onClose={() => setIsInviteUserModalOpen(false)}
-        title="Bjud in användare"
-        size="md"
-      >
-        <InviteUserForm
-          onSuccess={() => setIsInviteUserModalOpen(false)}
-          onCancel={() => setIsInviteUserModalOpen(false)}
-        />
+      <Modal open={isInviteUserModalOpen} onOpenChange={setIsInviteUserModalOpen}>
+        <ModalContent className="sm:max-w-md">
+          <ModalHeader>
+            <ModalTitle>Bjud in användare</ModalTitle>
+            <ModalDescription>Skicka en inbjudan via e-post</ModalDescription>
+          </ModalHeader>
+          <InviteUserForm
+            onSuccess={() => {
+              setIsInviteUserModalOpen(false);
+              toast.success('Inbjudan skickad', {
+                description: 'Användaren har fått en inbjudan via e-post.'
+              });
+            }}
+            onCancel={() => setIsInviteUserModalOpen(false)}
+          />
+        </ModalContent>
       </Modal>
     </div>
   );

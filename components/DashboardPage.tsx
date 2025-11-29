@@ -25,6 +25,12 @@ import {
 // Admin components
 import AdminFormResponseView from './admin/AdminFormResponseView';
 import AdminFileBrowser from './admin/AdminFileBrowser';
+// New enterprise pages
+import SettingsPage from './pages/SettingsPage';
+import IntegrationsPage from './pages/IntegrationsPage';
+import APIPortalPage from './pages/APIPortalPage';
+import AuditLogPage from './pages/AuditLogPage';
+import AnalyticsDashboardPage from './pages/AnalyticsDashboardPage';
 
 interface DashboardPageProps {
   currentPage: Page;
@@ -83,6 +89,16 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ currentPage, onNavigate, 
         return <AdminFormResponseView />;
       case 'dashboardFileBrowser':
         return <AdminFileBrowser />;
+      case 'dashboardSettings':
+        return <SettingsPage />;
+      case 'dashboardIntegrations':
+        return <IntegrationsPage />;
+      case 'dashboardApiPortal':
+        return <APIPortalPage />;
+      case 'dashboardAuditLog':
+        return <AuditLogPage />;
+      case 'dashboardAnalytics':
+        return <AnalyticsDashboardPage />;
       default:
         return renderOverviewDashboard();
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type Page = 'home' | 'philosophy' | 'audience' | 'results' | 'contact' | 'login' | 'blog' | 'blogPost' | 'caseStudies' | 'caseStudy' | 'privacy' | 'terms' | 'notFound' | 'dashboard' | 'dashboardProjects' | 'dashboardTickets' | 'dashboardTimeEntries' | 'dashboardDocuments' | 'dashboardTeam' | 'dashboardCompanies' | 'dashboardAIChat' | 'dashboardKnowledge' | 'dashboardAIDocs' | 'dashboardProductPlans' | 'dashboardFormResponses' | 'dashboardFileBrowser' | 'onboarding';
+export type Page = 'home' | 'philosophy' | 'audience' | 'results' | 'contact' | 'login' | 'blog' | 'blogPost' | 'caseStudies' | 'caseStudy' | 'privacy' | 'terms' | 'notFound' | 'dashboard' | 'dashboardProjects' | 'dashboardTickets' | 'dashboardTimeEntries' | 'dashboardDocuments' | 'dashboardTeam' | 'dashboardCompanies' | 'dashboardAIChat' | 'dashboardKnowledge' | 'dashboardAIDocs' | 'dashboardProductPlans' | 'dashboardFormResponses' | 'dashboardFileBrowser' | 'dashboardSettings' | 'dashboardIntegrations' | 'dashboardApiPortal' | 'dashboardAuditLog' | 'dashboardAnalytics' | 'onboarding';
 
 export interface NavItem {
   label: string;
